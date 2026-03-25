@@ -1,0 +1,535 @@
+{
+  "cases": [
+    {
+      "id": "greeting-hi",
+      "category": "conversation",
+      "tags": ["greeting", "baseline"],
+      "query": "Hi",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "GREETING",
+        "policy": "CONVERSATION",
+        "require_sql": false,
+        "max_rows": 0
+      },
+      "manual_checks": [
+        "Greeting should stay concise and not include fabricated metrics."
+      ]
+    },
+    {
+      "id": "greeting-thanks",
+      "category": "conversation",
+      "tags": ["thanks", "baseline"],
+      "query": "Thank you",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "THANKS",
+        "policy": "CONVERSATION",
+        "require_sql": false,
+        "max_rows": 0
+      },
+      "manual_checks": [
+        "Reply should acknowledge thanks without unrelated portfolio content."
+      ]
+    },
+    {
+      "id": "sql-highbury-manhattan-prices",
+      "category": "sql",
+      "tags": ["highbury", "pricing", "manhattan"],
+      "query": "List our Highbury listings in Manhattan with prices",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "policy": "SQL_HIGHBURY",
+        "require_sql": true,
+        "filters_subset": {
+          "borough": ["Manhattan"],
+          "is_highbury": true
+        },
+        "sql_contains": ["highbury_listings"],
+        "min_rows": 1
+      },
+      "manual_checks": [
+        "Spot-check one listing and price directly in DuckDB.",
+        "Confirm all rows are genuinely Highbury-managed."
+      ]
+    },
+    {
+      "id": "sql-market-queens-average-price",
+      "category": "sql",
+      "tags": ["market", "pricing", "queens"],
+      "query": "What is the average nightly rate in Queens?",
+      "composer_enabled": false,
+      "expected": {
+        "policy": "SQL_MARKET",
+        "require_sql": true,
+        "filters_subset": {
+          "borough": ["Queens"],
+          "is_highbury": false
+        },
+        "sql_contains": ["listings", "queens"],
+        "min_rows": 1
+      },
+      "manual_checks": [
+        "Verify the average price result with a direct SQL check."
+      ]
+    },
+    {
+      "id": "sql-market-brooklyn-bedrooms",
+      "category": "sql",
+      "tags": ["market", "inventory", "brooklyn"],
+      "query": "Show average bedrooms for listings in Brooklyn",
+      "composer_enabled": false,
+      "expected": {
+        "policy": "SQL_MARKET",
+        "require_sql": true,
+        "filters_subset": {
+          "borough": ["Brooklyn"]
+        },
+        "min_rows": 1
+      },
+      "manual_checks": [
+        "Check that the result is based on listings data, not reviews."
+      ]
+    },
+    {
+      "id": "sql-listing-specific-price",
+      "category": "sql",
+      "tags": ["listing", "pricing", "lookup"],
+      "query": "Show the price for listing 2595",
+      "composer_enabled": false,
+      "expected": {
+        "require_sql": true,
+        "filters_subset": {
+          "listing_id": 2595
+        },
+        "min_rows": 1
+      },
+      "manual_checks": [
+        "Confirm the row maps to listing_id 2595 only."
+      ]
+    },
+    {
+      "id": "sql-occupancy-trend-highbury",
+      "category": "sql",
+      "tags": ["highbury", "occupancy", "brooklyn"],
+      "query": "Show occupancy for our Highbury listings in Brooklyn",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "policy": "SQL_HIGHBURY",
+        "require_sql": true,
+        "filters_subset": {
+          "borough": ["Brooklyn"],
+          "is_highbury": true
+        },
+        "min_rows": 1
+      },
+      "manual_checks": [
+        "Check occupancy fields in the returned rows or aggregates."
+      ]
+    },
+    {
+      "id": "sql-compare-midtown-prices",
+      "category": "sql",
+      "tags": ["compare", "pricing", "midtown"],
+      "query": "Compare our prices to the market in Midtown",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "scope": "Hybrid",
+        "policy": "SQL_COMPARE",
+        "require_sql": true,
+        "min_rows": 1
+      },
+      "manual_checks": [
+        "Confirm the result compares Highbury and market rather than only one side."
+      ]
+    },
+    {
+      "id": "sql-compare-brooklyn-occupancy",
+      "category": "sql",
+      "tags": ["compare", "occupancy", "brooklyn"],
+      "query": "Compare our occupancy to the market in Brooklyn",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "scope": "Hybrid",
+        "policy": "SQL_COMPARE",
+        "require_sql": true,
+        "filters_subset": {
+          "borough": ["Brooklyn"]
+        },
+        "min_rows": 1
+      },
+      "manual_checks": [
+        "Check that market and Highbury metrics are both represented."
+      ]
+    },
+    {
+      "id": "sql-month-filter-march",
+      "category": "sql",
+      "tags": ["month-filter", "queens", "occupancy"],
+      "query": "Show occupancy in Queens in March",
+      "composer_enabled": false,
+      "expected": {
+        "require_sql": true,
+        "filters_subset": {
+          "borough": ["Queens"],
+          "month": ["MAR"]
+        }
+      },
+      "manual_checks": [
+        "Confirm March filtering is reflected in the final SQL."
+      ]
+    },
+    {
+      "id": "sql-highbury-queens-revenue",
+      "category": "sql",
+      "tags": ["highbury", "revenue", "queens"],
+      "query": "Show estimated revenue for our Highbury listings in Queens",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "policy": "SQL_HIGHBURY",
+        "require_sql": true,
+        "filters_subset": {
+          "borough": ["Queens"],
+          "is_highbury": true
+        },
+        "min_rows": 1
+      },
+      "manual_checks": [
+        "Confirm revenue fields come from the Highbury listings table."
+      ]
+    },
+    {
+      "id": "sql-market-manhattan-revenue",
+      "category": "sql",
+      "tags": ["market", "revenue", "manhattan"],
+      "query": "Show estimated revenue for listings in Manhattan",
+      "composer_enabled": false,
+      "expected": {
+        "policy": "SQL_MARKET",
+        "require_sql": true,
+        "filters_subset": {
+          "borough": ["Manhattan"],
+          "is_highbury": false
+        },
+        "min_rows": 1
+      },
+      "manual_checks": [
+        "Validate one returned revenue figure directly in DuckDB."
+      ]
+    },
+    {
+      "id": "rag-brooklyn-complaints",
+      "category": "rag",
+      "tags": ["reviews", "complaints", "brooklyn"],
+      "query": "What complaints do guests mention in Brooklyn?",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "SENTIMENT_REVIEWS",
+        "policy": "RAG_MARKET",
+        "filters_subset": {
+          "borough": ["Brooklyn"],
+          "sentiment_label": "negative",
+          "is_highbury": false
+        },
+        "min_rag_snippets": 1,
+        "max_rows": 0
+      },
+      "manual_checks": [
+        "Confirm snippets are actually negative complaints.",
+        "Confirm snippets belong to Brooklyn listings."
+      ]
+    },
+    {
+      "id": "rag-cleanliness-question",
+      "category": "rag",
+      "tags": ["reviews", "cleanliness", "sentiment"],
+      "query": "Are guests complaining about how clean the place is?",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "SENTIMENT_REVIEWS",
+        "min_rag_snippets": 1,
+        "max_rows": 0
+      },
+      "manual_checks": [
+        "Confirm the snippets are really about cleanliness rather than general sentiment."
+      ]
+    },
+    {
+      "id": "rag-listing-specific-reviews",
+      "category": "rag",
+      "tags": ["reviews", "listing", "lookup"],
+      "query": "Show the latest 5 reviews for listing 2595",
+      "composer_enabled": false,
+      "expected": {
+        "filters_subset": {
+          "listing_id": 2595
+        },
+        "min_rag_snippets": 1
+      },
+      "manual_checks": [
+        "Confirm snippets belong to listing 2595."
+      ]
+    },
+    {
+      "id": "rag-parking-mentions-midtown",
+      "category": "rag",
+      "tags": ["reviews", "parking", "midtown"],
+      "query": "Show recent guest reviews mentioning parking in Midtown",
+      "composer_enabled": false,
+      "expected": {
+        "min_rag_snippets": 1
+      },
+      "manual_checks": [
+        "Confirm parking is actually mentioned in the snippets.",
+        "Check Midtown alignment where possible."
+      ]
+    },
+    {
+      "id": "rag-positive-reviews-highbury",
+      "category": "rag",
+      "tags": ["reviews", "positive", "highbury"],
+      "query": "Show positive guest feedback for our Highbury listings",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "SENTIMENT_REVIEWS",
+        "filters_subset": {
+          "is_highbury": true,
+          "sentiment_label": "positive"
+        },
+        "min_rag_snippets": 1
+      },
+      "manual_checks": [
+        "Confirm the snippets are actually positive and Highbury-specific."
+      ]
+    },
+    {
+      "id": "rag-highbury-communication-praise",
+      "category": "rag",
+      "tags": ["reviews", "communication", "positive", "highbury"],
+      "query": "Show positive guest feedback about communication for our Highbury listings",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "filters_subset": {
+          "is_highbury": true,
+          "sentiment_label": "positive"
+        },
+        "min_rag_snippets": 1
+      },
+      "manual_checks": [
+        "Confirm the snippets mention host communication rather than unrelated praise."
+      ]
+    },
+    {
+      "id": "rag-manhattan-checkin-complaints",
+      "category": "rag",
+      "tags": ["reviews", "check-in", "complaints", "manhattan"],
+      "query": "What complaints do guests mention about check in in Manhattan?",
+      "composer_enabled": false,
+      "expected": {
+        "filters_subset": {
+          "borough": ["Manhattan"],
+          "sentiment_label": "negative"
+        },
+        "min_rag_snippets": 1
+      },
+      "manual_checks": [
+        "Confirm the review evidence is actually about check-in issues."
+      ]
+    },
+    {
+      "id": "hybrid-midtown-price-and-reviews",
+      "category": "hybrid",
+      "tags": ["compare", "pricing", "reviews", "midtown"],
+      "query": "Compare our prices to the market in Midtown and summarize guest complaints",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "scope": "Hybrid",
+        "policy": "SQL_RAG_FUSED",
+        "require_sql": true,
+        "min_rag_snippets": 1
+      },
+      "manual_checks": [
+        "Confirm both SQL comparison and review evidence are present."
+      ]
+    },
+    {
+      "id": "hybrid-brooklyn-revenue-and-reviews",
+      "category": "hybrid",
+      "tags": ["compare", "revenue", "reviews", "brooklyn"],
+      "query": "Compare our revenue to the market in Brooklyn and what guests complain about",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "scope": "Hybrid",
+        "policy": "SQL_RAG_FUSED",
+        "filters_subset": {
+          "borough": ["Brooklyn"]
+        },
+        "require_sql": true,
+        "min_rag_snippets": 1
+      },
+      "manual_checks": [
+        "Confirm revenue is from SQL and complaints are from review evidence."
+      ]
+    },
+    {
+      "id": "hybrid-queens-price-and-feedback",
+      "category": "hybrid",
+      "tags": ["compare", "pricing", "reviews", "queens"],
+      "query": "Compare our prices to the market in Queens and summarize guest feedback",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "scope": "Hybrid",
+        "policy": "SQL_RAG_FUSED",
+        "filters_subset": {
+          "borough": ["Queens"]
+        },
+        "require_sql": true,
+        "min_rag_snippets": 1
+      },
+      "manual_checks": [
+        "Confirm the answer includes both price comparison and review-backed commentary."
+      ]
+    },
+    {
+      "id": "hybrid-manhattan-occupancy-and-complaints",
+      "category": "hybrid",
+      "tags": ["compare", "occupancy", "reviews", "manhattan"],
+      "query": "Compare our occupancy to the market in Manhattan and what guests complain about",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "scope": "Hybrid",
+        "policy": "SQL_RAG_FUSED",
+        "filters_subset": {
+          "borough": ["Manhattan"]
+        },
+        "require_sql": true,
+        "min_rag_snippets": 1
+      },
+      "manual_checks": [
+        "Confirm occupancy comes from SQL and complaints come from review snippets."
+      ]
+    },
+    {
+      "id": "triage-manhattan",
+      "category": "triage",
+      "tags": ["triage", "highbury", "manhattan"],
+      "query": "Be a portfolio triage agent and diagnose Highbury listings in Manhattan",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "PORTFOLIO_TRIAGE_ADVANCED",
+        "policy": "PORTFOLIO_TRIAGE",
+        "scope": "Highbury",
+        "filters_subset": {
+          "borough": ["Manhattan"],
+          "is_highbury": true
+        }
+      },
+      "manual_checks": [
+        "Review backlog recommendations for plausibility.",
+        "Check that cited review snippets support the triage summary."
+      ]
+    },
+    {
+      "id": "triage-brooklyn",
+      "category": "triage",
+      "tags": ["triage", "highbury", "brooklyn"],
+      "query": "Diagnose my Highbury portfolio in Brooklyn",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "PORTFOLIO_TRIAGE_ADVANCED",
+        "scope": "Highbury",
+        "filters_subset": {
+          "borough": ["Brooklyn"],
+          "is_highbury": true
+        }
+      },
+      "manual_checks": [
+        "Confirm the triage scope is limited to Brooklyn Highbury units."
+      ]
+    },
+    {
+      "id": "triage-custom-kpi-revenue",
+      "category": "triage",
+      "tags": ["triage", "revenue", "kpi"],
+      "query": "Rank my Highbury portfolio by revenue and diagnose low performers",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "PORTFOLIO_TRIAGE_ADVANCED",
+        "filters_subset": {
+          "is_highbury": true,
+          "kpi": "estimated_revenue_30"
+        }
+      },
+      "manual_checks": [
+        "Check that revenue, not occupancy, is used as the triage KPI."
+      ]
+    },
+    {
+      "id": "triage-queens",
+      "category": "triage",
+      "tags": ["triage", "highbury", "queens"],
+      "query": "Be a portfolio triage agent and diagnose Highbury listings in Queens",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "PORTFOLIO_TRIAGE_ADVANCED",
+        "policy": "PORTFOLIO_TRIAGE",
+        "scope": "Highbury",
+        "filters_subset": {
+          "borough": ["Queens"],
+          "is_highbury": true
+        }
+      },
+      "manual_checks": [
+        "Confirm the triage analysis is restricted to Queens units."
+      ]
+    },
+    {
+      "id": "expansion-where-next",
+      "category": "expansion",
+      "tags": ["expansion", "nyc", "highbury"],
+      "query": "Where should Highbury expand next in NYC?",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "EXPANSION_SCOUT",
+        "policy": "EXPANSION_SCOUT",
+        "scope": "Highbury",
+        "require_sql": false
+      },
+      "manual_checks": [
+        "Review the expansion recommendation for source grounding.",
+        "Check that cited web sources are relevant and recent."
+      ]
+    },
+    {
+      "id": "expansion-brooklyn-neighborhoods",
+      "category": "expansion",
+      "tags": ["expansion", "brooklyn", "neighborhoods"],
+      "query": "Which Brooklyn neighborhoods should Highbury consider for expansion?",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "EXPANSION_SCOUT",
+        "policy": "EXPANSION_SCOUT"
+      },
+      "manual_checks": [
+        "Confirm the response discusses Brooklyn neighborhoods rather than generic NYC."
+      ]
+    }
+  ]
+}

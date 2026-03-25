@@ -1,0 +1,49 @@
+{
+  "generated_at": "2026-03-19T07:49:52.395508Z",
+  "models": [
+    {
+      "model_label": "gpt51",
+      "openai_model": "gpt-5.1",
+      "openai_fallback_model": null,
+      "nl2sql_model": "gpt-4o-mini",
+      "nl2sql_fallback_model": null,
+      "pass_rate": 40.91,
+      "assertion_pass_rate": 74.36,
+      "sql_pass_rate": 75.0,
+      "rag_pass_rate": 0.0,
+      "hybrid_pass_rate": 0.0,
+      "p50_latency_s": 4.105,
+      "p95_latency_s": 205.4825
+    },
+    {
+      "model_label": "gpt4o",
+      "openai_model": "gpt-4o",
+      "openai_fallback_model": null,
+      "nl2sql_model": "gpt-4o-mini",
+      "nl2sql_fallback_model": null,
+      "pass_rate": 40.91,
+      "assertion_pass_rate": 74.36,
+      "sql_pass_rate": 75.0,
+      "rag_pass_rate": 0.0,
+      "hybrid_pass_rate": 0.0,
+      "p50_latency_s": 4.105,
+      "p95_latency_s": 205.5975
+    },
+    {
+      "model_label": "gpt4omini",
+      "openai_model": "gpt-4o-mini",
+      "openai_fallback_model": null,
+      "nl2sql_model": "gpt-4o-mini",
+      "nl2sql_fallback_model": null,
+      "pass_rate": 40.91,
+      "assertion_pass_rate": 74.36,
+      "sql_pass_rate": 75.0,
+      "rag_pass_rate": 0.0,
+      "hybrid_pass_rate": 0.0,
+      "p50_latency_s": 4.105,
+      "p95_latency_s": 205.649
+    }
+  ],
+  "winner_by_accuracy": "gpt51",
+  "winner_by_speed": "gpt51"
+}

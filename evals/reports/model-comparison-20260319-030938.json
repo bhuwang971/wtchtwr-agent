@@ -1,0 +1,35 @@
+{
+  "generated_at": "2026-03-19T07:09:38.575932Z",
+  "models": [
+    {
+      "model_label": "baseline",
+      "openai_model": "gpt-5.1",
+      "openai_fallback_model": null,
+      "nl2sql_model": "gpt-4o-mini",
+      "nl2sql_fallback_model": null,
+      "pass_rate": 100.0,
+      "assertion_pass_rate": 100.0,
+      "sql_pass_rate": 0.0,
+      "rag_pass_rate": 0.0,
+      "hybrid_pass_rate": 0.0,
+      "p50_latency_s": 0.01,
+      "p95_latency_s": 0.01
+    },
+    {
+      "model_label": "fast",
+      "openai_model": "gpt-4o",
+      "openai_fallback_model": null,
+      "nl2sql_model": "gpt-4o-mini",
+      "nl2sql_fallback_model": null,
+      "pass_rate": 100.0,
+      "assertion_pass_rate": 100.0,
+      "sql_pass_rate": 0.0,
+      "rag_pass_rate": 0.0,
+      "hybrid_pass_rate": 0.0,
+      "p50_latency_s": 0.01,
+      "p95_latency_s": 0.01
+    }
+  ],
+  "winner_by_accuracy": "baseline",
+  "winner_by_speed": "baseline"
+}

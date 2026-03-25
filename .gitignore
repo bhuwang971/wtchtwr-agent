@@ -1,0 +1,94 @@
+###############################################################################
+# 🌐 PROJECT-WIDE IGNORE — SAFE FOR ALL TEAM MEMBERS
+###############################################################################
+
+# ------------------------------
+# 🚫 Python cache / virtual envs
+# ------------------------------
+__pycache__/
+.venv/
+.env
+.env.*
+pytest_policy.log
+evals/reports/*
+!evals/reports/*.json
+!evals/reports/*.md
+
+# ------------------------------
+# 🚫 Jupyter notebooks (large outputs)
+# ------------------------------
+notebooks/*
+!notebooks/README.md
+
+# ------------------------------
+# 🚫 Node / Frontend
+# ------------------------------
+node_modules/
+.vscode/
+
+###############################################################################
+# 📁 DATA DIRECTORIES
+###############################################################################
+
+# ------------------------------
+# 🚫 Ignore ALL heavy data by default
+# ------------------------------
+data/*
+!data/README.md       # Only track documentation
+!data/samples/        # Small demo files allowed
+!data/samples/*       
+!data/cache/          # Small parquet caches allowed
+!data/cache/*         
+
+# Explicitly ignore Raw + Clean datasets (LARGE)
+data/Raw/
+data/clean/
+
+# Allow only cached/demo parquet assets inside data
+!data/cache/*.parquet
+!data/samples/*.csv
+
+###############################################################################
+# 🦆 DUCKDB
+###############################################################################
+
+# Ignore DuckDB folder
+db/*
+!db/README.md
+
+###############################################################################
+# 🧠 VECTORS / EMBEDDINGS
+###############################################################################
+
+# Ignore entire vec folder by default
+vec/*
+!vec/README.md
+
+###############################################################################
+# 🧱 QDRANT STORAGE (NEVER COMMIT)
+###############################################################################
+
+qdrant_storage/*
+!qdrant_storage/README.md
+!qdrant_storage/.gitkeep
+
+# Extra accidental storage dirs
+storage/
+
+###############################################################################
+# 📦 Binary / Heavy file patterns
+###############################################################################
+
+*.db
+*.sqlite3
+*.bin
+*.pickle
+*.pkl
+*.npy
+*.csv
+*.parquet
+*.pt
+*.ckpt
+
+config/gdrive_service_account.json
+db/airbnb.duckdb

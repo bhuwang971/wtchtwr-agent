@@ -1,0 +1,218 @@
+{
+  "benchmark_file": "evals\\benchmarks.local.json",
+  "generated_at": "2026-03-19T08:16:47.696072+00:00",
+  "model_label": "default",
+  "openai_model": null,
+  "openai_fallback_model": null,
+  "nl2sql_model": null,
+  "nl2sql_fallback_model": null,
+  "total_cases": 2,
+  "passed_cases": 0,
+  "failed_cases": 2,
+  "pass_rate": 0.0,
+  "summary": {
+    "assertion_total": 9,
+    "assertion_passed": 6,
+    "assertion_failed": 3,
+    "assertion_pass_rate": 66.67,
+    "category_breakdown": {
+      "hybrid": {
+        "total": 2,
+        "passed": 0,
+        "failed": 2,
+        "pass_rate": 0.0
+      }
+    },
+    "intent_breakdown": {
+      "SENTIMENT_REVIEWS": {
+        "total": 2,
+        "passed": 0,
+        "failed": 2,
+        "pass_rate": 0.0
+      }
+    },
+    "policy_breakdown": {
+      "SQL_RAG_FUSED": {
+        "total": 2,
+        "passed": 0,
+        "failed": 2,
+        "pass_rate": 0.0
+      }
+    },
+    "latency": {
+      "count": 2,
+      "avg_s": 6.145,
+      "p50_s": 6.145,
+      "p95_s": 7.7335,
+      "max_s": 7.91
+    },
+    "sql_cases": 0,
+    "sql_cases_passed": 0,
+    "rag_cases": 0,
+    "rag_cases_passed": 0,
+    "hybrid_cases": 2,
+    "hybrid_cases_passed": 0
+  },
+  "results": [
+    {
+      "case_id": "hybrid-midtown-price-and-reviews",
+      "query": "Compare our prices to the market in Midtown and summarize guest complaints",
+      "category": "hybrid",
+      "passed": false,
+      "tags": [
+        "compare",
+        "pricing",
+        "reviews",
+        "midtown"
+      ],
+      "assertions": [
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "SQL_RAG_FUSED",
+          "actual": "SQL_RAG_FUSED",
+          "detail": null
+        },
+        {
+          "name": "scope",
+          "passed": true,
+          "expected": "Hybrid",
+          "actual": "Hybrid",
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": false,
+          "expected": true,
+          "actual": false,
+          "detail": null
+        },
+        {
+          "name": "min_rag_snippets",
+          "passed": true,
+          "expected": 1,
+          "actual": 4,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "SENTIMENT_REVIEWS",
+        "scope": "Hybrid",
+        "policy": "SQL_RAG_FUSED",
+        "filters": {
+          "borough": [
+            "Manhattan"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": true,
+          "sentiment_label": "negative",
+          "neighbourhood_hint": [
+            "midtown"
+          ]
+        },
+        "sql_text": "",
+        "answer_text": null,
+        "row_count": 0,
+        "rag_count": 4,
+        "latency": 4.38,
+        "manual_checks": [
+          "Confirm both SQL comparison and review evidence are present."
+        ],
+        "notes": null
+      },
+      "error": null
+    },
+    {
+      "case_id": "hybrid-brooklyn-revenue-and-reviews",
+      "query": "Compare our revenue to the market in Brooklyn and what guests complain about",
+      "category": "hybrid",
+      "passed": false,
+      "tags": [
+        "compare",
+        "revenue",
+        "reviews",
+        "brooklyn"
+      ],
+      "assertions": [
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "SQL_RAG_FUSED",
+          "actual": "SQL_RAG_FUSED",
+          "detail": null
+        },
+        {
+          "name": "scope",
+          "passed": true,
+          "expected": "Hybrid",
+          "actual": "Hybrid",
+          "detail": null
+        },
+        {
+          "name": "filters_subset",
+          "passed": true,
+          "expected": {
+            "borough": [
+              "Brooklyn"
+            ]
+          },
+          "actual": {
+            "borough": [
+              "Brooklyn"
+            ],
+            "neighbourhood": [],
+            "month": [],
+            "year": [],
+            "listing_id": null,
+            "is_highbury": true,
+            "sentiment_label": "negative"
+          },
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": false,
+          "expected": true,
+          "actual": false,
+          "detail": null
+        },
+        {
+          "name": "min_rag_snippets",
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "SENTIMENT_REVIEWS",
+        "scope": "Hybrid",
+        "policy": "SQL_RAG_FUSED",
+        "filters": {
+          "borough": [
+            "Brooklyn"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": true,
+          "sentiment_label": "negative"
+        },
+        "sql_text": "",
+        "answer_text": null,
+        "row_count": 0,
+        "rag_count": 0,
+        "latency": 7.91,
+        "manual_checks": [
+          "Confirm revenue is from SQL and complaints are from review evidence."
+        ],
+        "notes": null
+      },
+      "error": null
+    }
+  ]
+}

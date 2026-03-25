@@ -1,0 +1,217 @@
+{
+  "benchmark_file": "evals\\benchmarks.holdout.json",
+  "generated_at": "2026-03-25T00:33:18.539368+00:00",
+  "model_label": "default",
+  "openai_model": null,
+  "openai_fallback_model": null,
+  "nl2sql_model": null,
+  "nl2sql_fallback_model": null,
+  "headline_metrics": {
+    "case_pass_rate": 100.0,
+    "case_passed": 13,
+    "case_total": 13,
+    "assertion_pass_rate": 100.0,
+    "assertion_passed": 41,
+    "assertion_total": 41
+  },
+  "performance_metrics": {
+    "avg_latency_s": 20.2985,
+    "p50_latency_s": 5.82,
+    "p95_latency_s": 79.992,
+    "max_latency_s": 95.1
+  },
+  "pipeline_metrics": {
+    "overall_pass_rate": 100.0,
+    "overall_cases_passed": 13,
+    "overall_cases_total": 13,
+    "sql_pass_rate": 100.0,
+    "sql_cases_passed": 4,
+    "sql_cases_total": 4,
+    "rag_pass_rate": 100.0,
+    "rag_cases_passed": 3,
+    "rag_cases_total": 3,
+    "hybrid_pass_rate": 100.0,
+    "hybrid_cases_passed": 2,
+    "hybrid_cases_total": 2
+  },
+  "strongest_categories": [
+    {
+      "name": "sql",
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    {
+      "name": "rag",
+      "total": 3,
+      "passed": 3,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    {
+      "name": "triage",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    }
+  ],
+  "weakest_categories": [
+    {
+      "name": "expansion",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    {
+      "name": "hybrid",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    {
+      "name": "triage",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    }
+  ],
+  "failed_case_count": 0,
+  "failed_case_ids": [],
+  "slowest_cases": [
+    {
+      "case_id": "holdout-expansion-brooklyn-only",
+      "category": "expansion",
+      "latency_s": 95.1,
+      "policy": "EXPANSION_SCOUT"
+    },
+    {
+      "case_id": "holdout-expansion-nyc-submarkets-next-year",
+      "category": "expansion",
+      "latency_s": 69.92,
+      "policy": "EXPANSION_SCOUT"
+    },
+    {
+      "case_id": "holdout-triage-queens-portfolio-lead",
+      "category": "triage",
+      "latency_s": 37.38,
+      "policy": "PORTFOLIO_TRIAGE"
+    },
+    {
+      "case_id": "holdout-triage-revenue-kpi-low-performers",
+      "category": "triage",
+      "latency_s": 30.17,
+      "policy": "PORTFOLIO_TRIAGE"
+    },
+    {
+      "case_id": "holdout-hybrid-manhattan-occupancy-review-themes",
+      "category": "hybrid",
+      "latency_s": 8.38,
+      "policy": "SQL_RAG_FUSED"
+    }
+  ],
+  "policy_breakdown": {
+    "EXPANSION_SCOUT": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "PORTFOLIO_TRIAGE": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "RAG_HIGHBURY": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "RAG_MARKET": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "SQL_COMPARE": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "SQL_HIGHBURY": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "SQL_MARKET": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "SQL_RAG_FUSED": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    }
+  },
+  "intent_breakdown": {
+    "EXPANSION_SCOUT": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "FACT_SQL": {
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "FACT_SQL_COMPARE": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "FACT_SQL_RAG_HYBRID": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "PORTFOLIO_TRIAGE_ADVANCED": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "SENTIMENT_REVIEWS": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    }
+  },
+  "delta_vs_previous": {
+    "pass_rate_delta": 38.46,
+    "assertion_pass_rate_delta": 21.95,
+    "p50_latency_delta_s": 3.01,
+    "p95_latency_delta_s": 45.902
+  },
+  "interview_talking_points": [
+    "Overall benchmark pass rate is 100.0% across 13 curated product questions.",
+    "Assertion-level accuracy is 100.0%, which gives a more granular view than whole-case pass/fail.",
+    "Median latency is 5.82s, while p95 latency is 79.992s, so long-tail cases are visible and measurable.",
+    "SQL flows are the most stable at 100.0% pass rate, while weaker categories identify where the roadmap still is."
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "benchmark_file": "evals\\benchmarks.local.json",
+  "generated_at": "2026-03-19T08:21:20.734269+00:00",
+  "model_label": "default",
+  "openai_model": null,
+  "openai_fallback_model": null,
+  "nl2sql_model": null,
+  "nl2sql_fallback_model": null,
+  "total_cases": 1,
+  "passed_cases": 1,
+  "failed_cases": 0,
+  "pass_rate": 100.0,
+  "summary": {
+    "assertion_total": 5,
+    "assertion_passed": 5,
+    "assertion_failed": 0,
+    "assertion_pass_rate": 100.0,
+    "category_breakdown": {
+      "hybrid": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      }
+    },
+    "intent_breakdown": {
+      "SENTIMENT_REVIEWS": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      }
+    },
+    "policy_breakdown": {
+      "SQL_RAG_FUSED": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      }
+    },
+    "latency": {
+      "count": 1,
+      "avg_s": 10.24,
+      "p50_s": 10.24,
+      "p95_s": 10.24,
+      "max_s": 10.24
+    },
+    "sql_cases": 0,
+    "sql_cases_passed": 0,
+    "rag_cases": 0,
+    "rag_cases_passed": 0,
+    "hybrid_cases": 1,
+    "hybrid_cases_passed": 1
+  },
+  "results": [
+    {
+      "case_id": "hybrid-brooklyn-revenue-and-reviews",
+      "query": "Compare our revenue to the market in Brooklyn and what guests complain about",
+      "category": "hybrid",
+      "passed": true,
+      "tags": [
+        "compare",
+        "revenue",
+        "reviews",
+        "brooklyn"
+      ],
+      "assertions": [
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "SQL_RAG_FUSED",
+          "actual": "SQL_RAG_FUSED",
+          "detail": null
+        },
+        {
+          "name": "scope",
+          "passed": true,
+          "expected": "Hybrid",
+          "actual": "Hybrid",
+          "detail": null
+        },
+        {
+          "name": "filters_subset",
+          "passed": true,
+          "expected": {
+            "borough": [
+              "Brooklyn"
+            ]
+          },
+          "actual": {
+            "borough": [
+              "Brooklyn"
+            ],
+            "neighbourhood": [],
+            "month": [],
+            "year": [],
+            "listing_id": null,
+            "is_highbury": false,
+            "sentiment_label": "negative"
+          },
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": null
+        },
+        {
+          "name": "min_rag_snippets",
+          "passed": true,
+          "expected": 1,
+          "actual": 10,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "SENTIMENT_REVIEWS",
+        "scope": "Hybrid",
+        "policy": "SQL_RAG_FUSED",
+        "filters": {
+          "borough": [
+            "Brooklyn"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": false,
+          "sentiment_label": "negative"
+        },
+        "sql_text": "SELECT \n    'Highbury' AS portfolio,\n    ROUND(SUM(h.estimated_revenue_30), 2) AS highbury_revenue_30,\n    ROUND(SUM(h.estimated_revenue_60), 2) AS highbury_revenue_60,\n    ROUND(SUM(h.estimated_revenue_90), 2) AS highbury_revenue_90,\n    ROUND(SUM(h.estimated_revenue_365), 2) AS highbury_revenue_365,\n    'Market' AS portfolio,\n    ROUND(SUM(l.estimated_revenue_30), 2) AS market_revenue_30,\n    ROUND(SUM(l.estimated_revenue_60), 2) AS market_revenue_60,\n    ROUND(SUM(l.estimated_revenue_90), 2) AS market_revenue_90,\n    ROUND(SUM(l.estimated_revenue_365), 2) AS market_revenue_365,\n    ROUND(AVG(l.review_scores_rating), 2) AS market_average_rating,\n    COUNT(DISTINCT a.amenity_canonical) AS total_complaints\nFROM \n    highbury_listings h\nJOIN \n    listings_cleaned l ON h.listings_id = l.listings_id\nLEFT JOIN \n    amenities_norm a ON l.listings_id = a.listing_id\nWHERE \n    lower(l.neighbourhood_group) = 'brooklyn' \n    AND lower(h.neighbourhood_group) = 'brooklyn'\n    AND lower(a.amenity_canonical) LIKE '%complain%'\nGROUP BY \n    portfolio;",
+        "answer_text": null,
+        "row_count": 0,
+        "rag_count": 10,
+        "latency": 10.24,
+        "manual_checks": [
+          "Confirm revenue is from SQL and complaints are from review evidence."
+        ],
+        "notes": null
+      },
+      "error": null
+    }
+  ]
+}

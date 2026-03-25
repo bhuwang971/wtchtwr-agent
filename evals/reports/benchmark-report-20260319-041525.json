@@ -1,0 +1,571 @@
+{
+  "benchmark_file": "evals\\benchmarks.local.json",
+  "generated_at": "2026-03-19T08:15:25.011204+00:00",
+  "model_label": "default",
+  "openai_model": null,
+  "openai_fallback_model": null,
+  "nl2sql_model": null,
+  "nl2sql_fallback_model": null,
+  "total_cases": 6,
+  "passed_cases": 4,
+  "failed_cases": 2,
+  "pass_rate": 66.67,
+  "summary": {
+    "assertion_total": 25,
+    "assertion_passed": 21,
+    "assertion_failed": 4,
+    "assertion_pass_rate": 84.0,
+    "category_breakdown": {
+      "hybrid": {
+        "total": 2,
+        "passed": 0,
+        "failed": 2,
+        "pass_rate": 0.0
+      },
+      "rag": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "sql": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "triage": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      }
+    },
+    "intent_breakdown": {
+      "FACT_SQL_COMPARE": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "PORTFOLIO_TRIAGE_ADVANCED": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "SENTIMENT_REVIEWS": {
+        "total": 3,
+        "passed": 1,
+        "failed": 2,
+        "pass_rate": 33.33
+      }
+    },
+    "policy_breakdown": {
+      "PORTFOLIO_TRIAGE": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "RAG_HYBRID": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "pass_rate": 0.0
+      },
+      "RAG_MARKET": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "SQL_COMPARE": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "SQL_RAG_FUSED": {
+        "total": 1,
+        "passed": 0,
+        "failed": 1,
+        "pass_rate": 0.0
+      }
+    },
+    "latency": {
+      "count": 6,
+      "avg_s": 4.6867,
+      "p50_s": 3.25,
+      "p95_s": 11.4425,
+      "max_s": 13.68
+    },
+    "sql_cases": 2,
+    "sql_cases_passed": 2,
+    "rag_cases": 1,
+    "rag_cases_passed": 1,
+    "hybrid_cases": 2,
+    "hybrid_cases_passed": 0
+  },
+  "results": [
+    {
+      "case_id": "sql-compare-midtown-prices",
+      "query": "Compare our prices to the market in Midtown",
+      "category": "sql",
+      "passed": true,
+      "tags": [
+        "compare",
+        "pricing",
+        "midtown"
+      ],
+      "assertions": [
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "SQL_COMPARE",
+          "actual": "SQL_COMPARE",
+          "detail": null
+        },
+        {
+          "name": "scope",
+          "passed": true,
+          "expected": "Hybrid",
+          "actual": "Hybrid",
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": null
+        },
+        {
+          "name": "min_rows",
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "FACT_SQL_COMPARE",
+        "scope": "Hybrid",
+        "policy": "SQL_COMPARE",
+        "filters": {
+          "borough": [
+            "Manhattan"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": true,
+          "neighbourhood_hint": [
+            "midtown"
+          ],
+          "sentiment_label": null
+        },
+        "sql_text": "SELECT \n    ROUND(AVG(h.price_in_usd), 2) AS highbury_avg_price,\n    ROUND(AVG(l.price_in_usd), 2) AS market_avg_price\nFROM \n    highbury_listings h\nJOIN \n    listings_cleaned l ON h.listings_id = l.listings_id\nWHERE \n    lower(h.neighbourhood_group) = 'manhattan' \n    AND lower(h.neighbourhood) LIKE '%midtown%' \n    AND lower(l.neighbourhood_group) = 'manhattan' \n    AND lower(l.neighbourhood) LIKE '%midtown%'",
+        "answer_text": null,
+        "row_count": 1,
+        "rag_count": 0,
+        "latency": 3.57,
+        "manual_checks": [
+          "Confirm the result compares Highbury and market rather than only one side."
+        ],
+        "notes": null
+      },
+      "error": null
+    },
+    {
+      "case_id": "sql-compare-brooklyn-occupancy",
+      "query": "Compare our occupancy to the market in Brooklyn",
+      "category": "sql",
+      "passed": true,
+      "tags": [
+        "compare",
+        "occupancy",
+        "brooklyn"
+      ],
+      "assertions": [
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "SQL_COMPARE",
+          "actual": "SQL_COMPARE",
+          "detail": null
+        },
+        {
+          "name": "scope",
+          "passed": true,
+          "expected": "Hybrid",
+          "actual": "Hybrid",
+          "detail": null
+        },
+        {
+          "name": "filters_subset",
+          "passed": true,
+          "expected": {
+            "borough": [
+              "Brooklyn"
+            ]
+          },
+          "actual": {
+            "borough": [
+              "Brooklyn"
+            ],
+            "neighbourhood": [],
+            "month": [],
+            "year": [],
+            "listing_id": null,
+            "is_highbury": true,
+            "sentiment_label": null
+          },
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": null
+        },
+        {
+          "name": "min_rows",
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "FACT_SQL_COMPARE",
+        "scope": "Hybrid",
+        "policy": "SQL_COMPARE",
+        "filters": {
+          "borough": [
+            "Brooklyn"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": true,
+          "sentiment_label": null
+        },
+        "sql_text": "SELECT \n    ROUND(AVG(h.occupancy_rate_30), 2) AS highbury_occupancy_rate_30,\n    ROUND(AVG(l.occupancy_rate_30), 2) AS market_occupancy_rate_30,\n    ROUND(AVG(h.occupancy_rate_60), 2) AS highbury_occupancy_rate_60,\n    ROUND(AVG(l.occupancy_rate_60), 2) AS market_occupancy_rate_60,\n    ROUND(AVG(h.occupancy_rate_90), 2) AS highbury_occupancy_rate_90,\n    ROUND(AVG(l.occupancy_rate_90), 2) AS market_occupancy_rate_90,\n    ROUND(AVG(h.occupancy_rate_365), 2) AS highbury_occupancy_rate_365,\n    ROUND(AVG(l.occupancy_rate_365), 2) AS market_occupancy_rate_365\nFROM \n    highbury_listings h\nJOIN \n    listings_cleaned l ON h.listings_id = l.listings_id\nWHERE \n    lower(h.neighbourhood_group) = 'brooklyn' \n    AND lower(l.neighbourhood_group) = 'brooklyn';",
+        "answer_text": null,
+        "row_count": 1,
+        "rag_count": 0,
+        "latency": 4.73,
+        "manual_checks": [
+          "Check that market and Highbury metrics are both represented."
+        ],
+        "notes": null
+      },
+      "error": null
+    },
+    {
+      "case_id": "rag-cleanliness-question",
+      "query": "Are guests complaining about how clean the place is?",
+      "category": "rag",
+      "passed": true,
+      "tags": [
+        "reviews",
+        "cleanliness",
+        "sentiment"
+      ],
+      "assertions": [
+        {
+          "name": "intent",
+          "passed": true,
+          "expected": "SENTIMENT_REVIEWS",
+          "actual": "SENTIMENT_REVIEWS",
+          "detail": null
+        },
+        {
+          "name": "max_rows",
+          "passed": true,
+          "expected": 0,
+          "actual": 0,
+          "detail": null
+        },
+        {
+          "name": "min_rag_snippets",
+          "passed": true,
+          "expected": 1,
+          "actual": 10,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "SENTIMENT_REVIEWS",
+        "scope": "Market",
+        "policy": "RAG_MARKET",
+        "filters": {
+          "borough": [],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": false,
+          "sentiment_label": "negative"
+        },
+        "sql_text": "",
+        "answer_text": null,
+        "row_count": 0,
+        "rag_count": 10,
+        "latency": 2.68,
+        "manual_checks": [
+          "Confirm the snippets are really about cleanliness rather than general sentiment."
+        ],
+        "notes": null
+      },
+      "error": null
+    },
+    {
+      "case_id": "hybrid-midtown-price-and-reviews",
+      "query": "Compare our prices to the market in Midtown and summarize guest complaints",
+      "category": "hybrid",
+      "passed": false,
+      "tags": [
+        "compare",
+        "pricing",
+        "reviews",
+        "midtown"
+      ],
+      "assertions": [
+        {
+          "name": "policy",
+          "passed": false,
+          "expected": "SQL_RAG_FUSED",
+          "actual": "RAG_HYBRID",
+          "detail": null
+        },
+        {
+          "name": "scope",
+          "passed": true,
+          "expected": "Hybrid",
+          "actual": "Hybrid",
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": false,
+          "expected": true,
+          "actual": false,
+          "detail": null
+        },
+        {
+          "name": "min_rag_snippets",
+          "passed": true,
+          "expected": 1,
+          "actual": 4,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "SENTIMENT_REVIEWS",
+        "scope": "Hybrid",
+        "policy": "RAG_HYBRID",
+        "filters": {
+          "borough": [
+            "Manhattan"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": true,
+          "sentiment_label": "negative",
+          "neighbourhood_hint": [
+            "midtown"
+          ]
+        },
+        "sql_text": "",
+        "answer_text": null,
+        "row_count": 0,
+        "rag_count": 4,
+        "latency": 0.53,
+        "manual_checks": [
+          "Confirm both SQL comparison and review evidence are present."
+        ],
+        "notes": null
+      },
+      "error": null
+    },
+    {
+      "case_id": "hybrid-brooklyn-revenue-and-reviews",
+      "query": "Compare our revenue to the market in Brooklyn and what guests complain about",
+      "category": "hybrid",
+      "passed": false,
+      "tags": [
+        "compare",
+        "revenue",
+        "reviews",
+        "brooklyn"
+      ],
+      "assertions": [
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "SQL_RAG_FUSED",
+          "actual": "SQL_RAG_FUSED",
+          "detail": null
+        },
+        {
+          "name": "scope",
+          "passed": true,
+          "expected": "Hybrid",
+          "actual": "Hybrid",
+          "detail": null
+        },
+        {
+          "name": "filters_subset",
+          "passed": true,
+          "expected": {
+            "borough": [
+              "Brooklyn"
+            ]
+          },
+          "actual": {
+            "borough": [
+              "Brooklyn"
+            ],
+            "neighbourhood": [],
+            "month": [],
+            "year": [],
+            "listing_id": null,
+            "is_highbury": true,
+            "sentiment_label": "negative"
+          },
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": false,
+          "expected": true,
+          "actual": false,
+          "detail": null
+        },
+        {
+          "name": "min_rag_snippets",
+          "passed": false,
+          "expected": 1,
+          "actual": 0,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "SENTIMENT_REVIEWS",
+        "scope": "Hybrid",
+        "policy": "SQL_RAG_FUSED",
+        "filters": {
+          "borough": [
+            "Brooklyn"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": true,
+          "sentiment_label": "negative"
+        },
+        "sql_text": "",
+        "answer_text": null,
+        "row_count": 0,
+        "rag_count": 0,
+        "latency": 2.93,
+        "manual_checks": [
+          "Confirm revenue is from SQL and complaints are from review evidence."
+        ],
+        "notes": null
+      },
+      "error": null
+    },
+    {
+      "case_id": "triage-manhattan",
+      "query": "Be a portfolio triage agent and diagnose Highbury listings in Manhattan",
+      "category": "triage",
+      "passed": true,
+      "tags": [
+        "triage",
+        "highbury",
+        "manhattan"
+      ],
+      "assertions": [
+        {
+          "name": "intent",
+          "passed": true,
+          "expected": "PORTFOLIO_TRIAGE_ADVANCED",
+          "actual": "PORTFOLIO_TRIAGE_ADVANCED",
+          "detail": null
+        },
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "PORTFOLIO_TRIAGE",
+          "actual": "PORTFOLIO_TRIAGE",
+          "detail": null
+        },
+        {
+          "name": "scope",
+          "passed": true,
+          "expected": "Highbury",
+          "actual": "Highbury",
+          "detail": null
+        },
+        {
+          "name": "filters_subset",
+          "passed": true,
+          "expected": {
+            "borough": [
+              "Manhattan"
+            ],
+            "is_highbury": true
+          },
+          "actual": {
+            "borough": [
+              "Manhattan"
+            ],
+            "neighbourhood": [],
+            "month": [],
+            "year": [],
+            "listing_id": null,
+            "is_highbury": true,
+            "sentiment_label": null
+          },
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "PORTFOLIO_TRIAGE_ADVANCED",
+        "scope": "Highbury",
+        "policy": "PORTFOLIO_TRIAGE",
+        "filters": {
+          "borough": [
+            "Manhattan"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": true,
+          "sentiment_label": null
+        },
+        "sql_text": "",
+        "answer_text": null,
+        "row_count": 0,
+        "rag_count": 18,
+        "latency": 13.68,
+        "manual_checks": [
+          "Review backlog recommendations for plausibility.",
+          "Check that cited review snippets support the triage summary."
+        ],
+        "notes": null
+      },
+      "error": null
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "benchmark_file": "evals\\benchmarks.local.json",
+  "generated_at": "2026-03-24T22:32:44.678800+00:00",
+  "model_label": "default",
+  "openai_model": null,
+  "openai_fallback_model": null,
+  "nl2sql_model": null,
+  "nl2sql_fallback_model": null,
+  "total_cases": 2,
+  "passed_cases": 2,
+  "failed_cases": 0,
+  "pass_rate": 100.0,
+  "summary": {
+    "assertion_total": 6,
+    "assertion_passed": 6,
+    "assertion_failed": 0,
+    "assertion_pass_rate": 100.0,
+    "category_breakdown": {
+      "expansion": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      }
+    },
+    "intent_breakdown": {
+      "EXPANSION_SCOUT": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      }
+    },
+    "policy_breakdown": {
+      "EXPANSION_SCOUT": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      }
+    },
+    "latency": {
+      "count": 2,
+      "avg_s": 106.585,
+      "p50_s": 106.585,
+      "p95_s": 163.4965,
+      "max_s": 169.82
+    },
+    "sql_cases": 0,
+    "sql_cases_passed": 0,
+    "rag_cases": 0,
+    "rag_cases_passed": 0,
+    "hybrid_cases": 0,
+    "hybrid_cases_passed": 0
+  },
+  "results": [
+    {
+      "case_id": "expansion-where-next",
+      "query": "Where should Highbury expand next in NYC?",
+      "category": "expansion",
+      "passed": true,
+      "tags": [
+        "expansion",
+        "nyc",
+        "highbury"
+      ],
+      "assertions": [
+        {
+          "name": "intent",
+          "passed": true,
+          "expected": "EXPANSION_SCOUT",
+          "actual": "EXPANSION_SCOUT",
+          "detail": null
+        },
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "EXPANSION_SCOUT",
+          "actual": "EXPANSION_SCOUT",
+          "detail": null
+        },
+        {
+          "name": "scope",
+          "passed": true,
+          "expected": "Highbury",
+          "actual": "Highbury",
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": true,
+          "expected": false,
+          "actual": false,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "EXPANSION_SCOUT",
+        "scope": "Highbury",
+        "policy": "EXPANSION_SCOUT",
+        "filters": {
+          "borough": [],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": null
+        },
+        "sql_text": "",
+        "answer_text": null,
+        "row_count": 0,
+        "rag_count": 0,
+        "latency": 169.82,
+        "manual_checks": [
+          "Review the expansion recommendation for source grounding.",
+          "Check that cited web sources are relevant and recent."
+        ],
+        "notes": null
+      },
+      "error": null
+    },
+    {
+      "case_id": "expansion-brooklyn-neighborhoods",
+      "query": "Which Brooklyn neighborhoods should Highbury consider for expansion?",
+      "category": "expansion",
+      "passed": true,
+      "tags": [
+        "expansion",
+        "brooklyn",
+        "neighborhoods"
+      ],
+      "assertions": [
+        {
+          "name": "intent",
+          "passed": true,
+          "expected": "EXPANSION_SCOUT",
+          "actual": "EXPANSION_SCOUT",
+          "detail": null
+        },
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "EXPANSION_SCOUT",
+          "actual": "EXPANSION_SCOUT",
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "EXPANSION_SCOUT",
+        "scope": "Highbury",
+        "policy": "EXPANSION_SCOUT",
+        "filters": {
+          "borough": [],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": null
+        },
+        "sql_text": "",
+        "answer_text": null,
+        "row_count": 0,
+        "rag_count": 0,
+        "latency": 43.35,
+        "manual_checks": [
+          "Confirm the response discusses Brooklyn neighborhoods rather than generic NYC."
+        ],
+        "notes": null
+      },
+      "error": null
+    }
+  ]
+}

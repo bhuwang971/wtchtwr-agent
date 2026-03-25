@@ -1,0 +1,63 @@
+{
+  "cases": [
+    {
+      "id": "greeting-baseline",
+      "category": "conversation",
+      "query": "Hi",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "GREETING",
+        "policy": "CONVERSATION",
+        "require_sql": false,
+        "max_rows": 0
+      },
+      "manual_checks": [
+        "Greeting should not mention unrelated portfolio metrics.",
+        "Tone should stay concise and welcoming."
+      ]
+    },
+    {
+      "id": "highbury-market-sql-shape",
+      "category": "sql",
+      "query": "List our Highbury listings in Manhattan with prices",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "policy": "SQL_HIGHBURY",
+        "require_sql": true,
+        "filters_subset": {
+          "borough": [
+            "Manhattan"
+          ]
+        },
+        "sql_contains": [
+          "highbury_listings"
+        ],
+        "min_rows": 1
+      },
+      "manual_checks": [
+        "Confirm the listed rows are actually Highbury-managed units.",
+        "Spot-check at least one price directly against DuckDB."
+      ]
+    },
+    {
+      "id": "reviews-rag-shape",
+      "category": "rag",
+      "query": "What complaints do guests mention in Brooklyn?",
+      "composer_enabled": false,
+      "expected": {
+        "policy": "RAG_MARKET",
+        "intent": "SENTIMENT_REVIEWS",
+        "min_rag_snippets": 1,
+        "filters_subset": {
+          "borough": ["Brooklyn"],
+          "sentiment_label": "negative"
+        }
+      },
+      "manual_checks": [
+        "Confirm snippets are about guest complaints rather than neutral comments.",
+        "Confirm snippets match Brooklyn filters."
+      ]
+    }
+  ]
+}

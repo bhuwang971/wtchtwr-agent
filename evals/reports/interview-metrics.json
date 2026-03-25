@@ -1,0 +1,235 @@
+{
+  "benchmark_file": "evals\\benchmarks.local.json",
+  "generated_at": "2026-03-19T06:16:15.610206+00:00",
+  "headline_metrics": {
+    "case_pass_rate": 59.09,
+    "case_passed": 13,
+    "case_total": 22,
+    "assertion_pass_rate": 82.05,
+    "assertion_passed": 64,
+    "assertion_total": 78
+  },
+  "performance_metrics": {
+    "avg_latency_s": 25.5277,
+    "p50_latency_s": 2.375,
+    "p95_latency_s": 73.819,
+    "max_latency_s": 385.44
+  },
+  "pipeline_metrics": {
+    "overall_pass_rate": 59.09,
+    "overall_cases_passed": 13,
+    "overall_cases_total": 22,
+    "sql_pass_rate": 75.0,
+    "sql_cases_passed": 6,
+    "sql_cases_total": 8,
+    "rag_pass_rate": 80.0,
+    "rag_cases_passed": 4,
+    "rag_cases_total": 5,
+    "hybrid_pass_rate": 0.0,
+    "hybrid_cases_passed": 0,
+    "hybrid_cases_total": 2
+  },
+  "strongest_categories": [
+    {
+      "name": "conversation",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    {
+      "name": "rag",
+      "total": 5,
+      "passed": 4,
+      "failed": 1,
+      "pass_rate": 80.0
+    },
+    {
+      "name": "sql",
+      "total": 8,
+      "passed": 6,
+      "failed": 2,
+      "pass_rate": 75.0
+    }
+  ],
+  "weakest_categories": [
+    {
+      "name": "expansion",
+      "total": 2,
+      "passed": 0,
+      "failed": 2,
+      "pass_rate": 0.0
+    },
+    {
+      "name": "hybrid",
+      "total": 2,
+      "passed": 0,
+      "failed": 2,
+      "pass_rate": 0.0
+    },
+    {
+      "name": "triage",
+      "total": 3,
+      "passed": 1,
+      "failed": 2,
+      "pass_rate": 33.33
+    }
+  ],
+  "failed_case_count": 9,
+  "failed_case_ids": [
+    "sql-compare-midtown-prices",
+    "sql-compare-brooklyn-occupancy",
+    "rag-cleanliness-question",
+    "hybrid-midtown-price-and-reviews",
+    "hybrid-brooklyn-revenue-and-reviews",
+    "triage-manhattan",
+    "triage-brooklyn",
+    "expansion-where-next",
+    "expansion-brooklyn-neighborhoods"
+  ],
+  "slowest_cases": [
+    {
+      "case_id": "expansion-brooklyn-neighborhoods",
+      "category": "expansion",
+      "latency_s": 385.44,
+      "policy": null
+    },
+    {
+      "case_id": "expansion-where-next",
+      "category": "expansion",
+      "latency_s": 76.11,
+      "policy": null
+    },
+    {
+      "case_id": "triage-custom-kpi-revenue",
+      "category": "triage",
+      "latency_s": 30.29,
+      "policy": "PORTFOLIO_TRIAGE"
+    },
+    {
+      "case_id": "triage-brooklyn",
+      "category": "triage",
+      "latency_s": 19.31,
+      "policy": "PORTFOLIO_TRIAGE"
+    },
+    {
+      "case_id": "triage-manhattan",
+      "category": "triage",
+      "latency_s": 16.91,
+      "policy": "PORTFOLIO_TRIAGE"
+    }
+  ],
+  "policy_breakdown": {
+    "CONVERSATION": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "PORTFOLIO_TRIAGE": {
+      "total": 3,
+      "passed": 1,
+      "failed": 2,
+      "pass_rate": 33.33
+    },
+    "RAG_HIGHBURY": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "RAG_MARKET": {
+      "total": 4,
+      "passed": 3,
+      "failed": 1,
+      "pass_rate": 75.0
+    },
+    "SQL_HIGHBURY": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "SQL_MARKET": {
+      "total": 4,
+      "passed": 4,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "SQL_RAG_COMPARE": {
+      "total": 4,
+      "passed": 0,
+      "failed": 4,
+      "pass_rate": 0.0
+    },
+    "unknown": {
+      "total": 2,
+      "passed": 0,
+      "failed": 2,
+      "pass_rate": 0.0
+    }
+  },
+  "intent_breakdown": {
+    "EXPANSION_SCOUT": {
+      "total": 2,
+      "passed": 0,
+      "failed": 2,
+      "pass_rate": 0.0
+    },
+    "FACT_SQL": {
+      "total": 8,
+      "passed": 8,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "FACT_SQL_COMPARE": {
+      "total": 2,
+      "passed": 0,
+      "failed": 2,
+      "pass_rate": 0.0
+    },
+    "FACT_SQL_RAG_HYBRID": {
+      "total": 1,
+      "passed": 0,
+      "failed": 1,
+      "pass_rate": 0.0
+    },
+    "GREETING": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "PORTFOLIO_TRIAGE_ADVANCED": {
+      "total": 3,
+      "passed": 1,
+      "failed": 2,
+      "pass_rate": 33.33
+    },
+    "REVIEWS_RAG": {
+      "total": 1,
+      "passed": 0,
+      "failed": 1,
+      "pass_rate": 0.0
+    },
+    "SENTIMENT_REVIEWS": {
+      "total": 3,
+      "passed": 2,
+      "failed": 1,
+      "pass_rate": 66.67
+    },
+    "THANKS": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
+    }
+  },
+  "delta_vs_previous": null,
+  "interview_talking_points": [
+    "Overall benchmark pass rate is 59.09% across 22 curated product questions.",
+    "Assertion-level accuracy is 82.05%, which gives a more granular view than whole-case pass/fail.",
+    "Median latency is 2.375s, while p95 latency is 73.819s, so long-tail cases are visible and measurable.",
+    "SQL flows are the most stable at 75.0% pass rate, while weaker categories identify where the roadmap still is."
+  ]
+}
