@@ -390,3 +390,66 @@ export async function fetchDashboardView(body: DashboardRequestPayload): Promise
     body: JSON.stringify(body),
   });
 }
+
+export interface HealthComponentStatus {
+  ok: boolean;
+  detail: string;
+  [key: string]: unknown;
+}
+
+export interface HealthSnapshot {
+  service: string;
+  status: string;
+  checked_at: string;
+  components: Record<string, HealthComponentStatus>;
+}
+
+export interface InterviewMetricsPack {
+  pack: string;
+  benchmark_report: string;
+  benchmark_file: string;
+  generated_at: string;
+  headline_metrics: {
+    case_pass_rate: number;
+    case_passed: number;
+    case_total: number;
+    assertion_pass_rate: number;
+    assertion_passed: number;
+    assertion_total: number;
+  };
+  performance_metrics: {
+    avg_latency_s: number;
+    p50_latency_s: number;
+    p95_latency_s: number;
+    max_latency_s: number;
+  };
+  pipeline_metrics: {
+    overall_pass_rate: number;
+    overall_cases_passed: number;
+    overall_cases_total: number;
+    sql_pass_rate: number;
+    sql_cases_passed: number;
+    sql_cases_total: number;
+    rag_pass_rate: number;
+    rag_cases_passed: number;
+    rag_cases_total: number;
+    hybrid_pass_rate: number;
+    hybrid_cases_passed: number;
+    hybrid_cases_total: number;
+  };
+  strongest_categories: Array<{ name: string; pass_rate: number; passed: number; total: number }>;
+  weakest_categories: Array<{ name: string; pass_rate: number; passed: number; total: number }>;
+  failed_case_ids: string[];
+}
+
+export interface AiMetricsResponse {
+  service: string;
+  generated_at: string;
+  health: HealthSnapshot;
+  latest_interview_metrics?: Record<string, unknown>;
+  packs: Record<string, InterviewMetricsPack>;
+}
+
+export async function fetchAiMetrics(): Promise<AiMetricsResponse> {
+  return request<AiMetricsResponse>(`${API_BASE_URL}/api/ai/metrics`);
+}

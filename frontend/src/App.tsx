@@ -4,6 +4,7 @@ import { ChatPage } from "@/pages/Chat";
 import { DashboardPage } from "@/pages/Dashboard";
 import { HistoryPage } from "@/pages/History";
 import { DataExportPage } from "@/pages/DataExport";
+import { AiMetricsPage } from "@/pages/AiMetrics";
 import {
   createConversation,
   deleteMessage as apiDeleteMessage,
@@ -190,6 +191,9 @@ export default function App(): JSX.Element {
               <button onClick={() => navigate("/data-export")} className={BUTTON_BASE}>
                 Data Export
               </button>
+              <button onClick={() => navigate("/ai-metrics")} className={BUTTON_BASE}>
+                AI Metrics
+              </button>
               <button onClick={openSlackbot} className={BUTTON_BASE}>
                 Open Slackbot
               </button>
@@ -263,6 +267,7 @@ export default function App(): JSX.Element {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/history" element={<HistoryPage />} />
               <Route path="/data-export" element={<DataExportPage />} />
+              <Route path="/ai-metrics" element={<AiMetricsPage />} />
             </Routes>
           </div>
         </main>

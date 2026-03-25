@@ -7,6 +7,7 @@ This folder contains a lightweight benchmark/evaluation harness for checking res
 - `benchmarks.sample.json`: starter benchmark cases you can copy and extend
 - `benchmarks.local.json`: your main tuned regression pack
 - `benchmarks.holdout.json`: separate holdout/adversarial pack for paraphrases, multi-clause prompts, and constraint-following checks
+- `benchmarks.adversarial.json`: explicit stress pack for contradictory prompts, vague business phrasing, unsupported slices, and weak-evidence handling
 - `runner.py`: benchmark execution and scoring logic
 - `interview_summary.py`: interview-ready rollups from benchmark output
 
@@ -68,6 +69,13 @@ Holdout/adversarial run:
 ```powershell
 cd C:\Users\bhuwa\wtchtwr
 .\.venv\Scripts\python scripts\run_benchmarks.py --benchmark-file evals\benchmarks.holdout.json
+```
+
+Explicit adversarial run:
+
+```powershell
+cd C:\Users\bhuwa\wtchtwr
+.\.venv\Scripts\python scripts\run_benchmarks.py --benchmark-file evals\benchmarks.adversarial.json
 ```
 
 Examples of pack-specific summaries after running:
@@ -145,3 +153,4 @@ cd C:\Users\bhuwa\wtchtwr
 - Treat this as a benchmark harness, not a replacement for unit tests.
 - Use `interview-metrics-latest.md` as the fast summary for interview prep. It distills overall accuracy, latency, strongest categories, weakest categories, and the slowest benchmark cases into talking points.
 - Keep the tuned regression pack and the holdout/adversarial pack separate. If both rise together, you have stronger evidence that the system is improving rather than just overfitting to the benchmark wording.
+- The app now exposes an `AI Metrics` page in the frontend, backed by `/api/ai/metrics`, so you can demo health checks, tuned/holdout metrics, and category-level quality without leaving the product.

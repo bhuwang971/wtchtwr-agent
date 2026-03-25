@@ -148,6 +148,20 @@ const formatStrengthValue = (value?: number): string => {
   return value.toFixed(2);
 };
 
+const confidenceTone = (band?: string): string => {
+  if (band === "high") return "bg-emerald-50 text-emerald-700 border-emerald-200";
+  if (band === "medium") return "bg-amber-50 text-amber-700 border-amber-200";
+  return "bg-rose-50 text-rose-700 border-rose-200";
+};
+
+const prettyJson = (value: unknown): string => {
+  try {
+    return JSON.stringify(value ?? {}, null, 2);
+  } catch {
+    return String(value ?? "");
+  }
+};
+
 const isRenderableMarkdownTable = (value: string | undefined): boolean => {
   if (!value) return false;
   const lower = value.toLowerCase();
@@ -354,6 +368,9 @@ export const MessageBubble: React.FC<MessageProps> = ({
         message.payload.policy.toUpperCase() === "EXPANSION_SCOUT") ||
       message.payload?.response_type === "expansion");
   const isLoadingPlaceholder = !isUser && message.payload?.response_type === "loading";
+  const confidence = !isUser ? message.payload?.confidence : undefined;
+  const trace = !isUser ? message.payload?.trace : undefined;
+  const totalTokens = typeof trace?.performance?.tokens?.total_tokens === "number" ? trace.performance.tokens.total_tokens : undefined;
 
   let displayContent = "";
   let usedMarkdownAsText = false;
@@ -629,6 +646,47 @@ export const MessageBubble: React.FC<MessageProps> = ({
           </details>
         )}
 
+        {!isUser && confidence?.overall && (
+          <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm font-semibold text-slate-800">Answer confidence</span>
+              <span className={`rounded-full border px-2.5 py-1 text-xs font-semibold ${confidenceTone(confidence.overall.band)}`}>
+                {confidence.overall.band.toUpperCase()}
+              </span>
+              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-slate-600">
+                Score {Math.round((confidence.overall.score || 0) * 100)} / 100
+              </span>
+              {confidence.degraded && (
+                <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700">
+                  Degraded mode
+                </span>
+              )}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs">
+              {confidence.sql && (
+                <span className={`rounded-full border px-2.5 py-1 font-semibold ${confidenceTone(confidence.sql.band)}`}>
+                  SQL: {confidence.sql.band}
+                </span>
+              )}
+              {confidence.rag && (
+                <span className={`rounded-full border px-2.5 py-1 font-semibold ${confidenceTone(confidence.rag.band)}`}>
+                  Retrieval: {confidence.rag.band}
+                </span>
+              )}
+            </div>
+            {(confidence.overall.reasons?.length || confidence.degraded_reasons?.length) && (
+              <div className="mt-3 space-y-1 text-xs leading-relaxed text-slate-600">
+                {(confidence.overall.reasons || []).slice(0, 2).map((reason) => (
+                  <div key={`confidence-reason-${reason}`}>• {reason}</div>
+                ))}
+                {(confidence.degraded_reasons || []).map((reason) => (
+                  <div key={`degraded-reason-${reason}`} className="text-amber-700">• {reason}</div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {!isUser && (rowCount !== undefined || durationMs !== undefined || pipeline) && (
           <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
             {rowCount !== undefined && (
@@ -641,12 +699,73 @@ export const MessageBubble: React.FC<MessageProps> = ({
                 Latency: {Math.round(durationMs)} ms
               </span>
             )}
+            {totalTokens !== undefined && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 font-medium">
+                Tokens: {totalTokens}
+              </span>
+            )}
             {pipeline && (
               <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-primary-500 font-semibold">
                 Pipeline: {pipeline}
               </span>
             )}
           </div>
+        )}
+
+        {!isUser && trace && (
+          <details className="mt-4 group">
+            <summary className="flex flex-wrap items-center justify-between gap-3 cursor-pointer text-sm font-semibold text-primary-600 transition group-open:text-primary-700">
+              <span className="flex items-center gap-1">
+                <span className="text-2xl leading-none transition-transform group-open:rotate-90">▸</span>
+                AI Trace
+              </span>
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                intent {trace.intent || "n/a"} • policy {trace.policy || "n/a"}
+              </span>
+            </summary>
+            <div className="mt-3 grid gap-3 lg:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                <div className="text-xs uppercase tracking-wide text-slate-500">Routing</div>
+                <div className="mt-2 space-y-2 text-sm text-slate-700">
+                  <div><strong>Intent:</strong> {trace.intent || "n/a"}</div>
+                  <div><strong>Scope:</strong> {trace.scope || "n/a"}</div>
+                  <div><strong>Policy:</strong> {trace.policy || "n/a"}</div>
+                  <div><strong>Degraded:</strong> {trace.degraded ? "yes" : "no"}</div>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                <div className="text-xs uppercase tracking-wide text-slate-500">Performance</div>
+                <div className="mt-2 space-y-2 text-sm text-slate-700">
+                  <div><strong>Total latency:</strong> {typeof trace.performance?.total_latency_s === "number" ? `${trace.performance.total_latency_s.toFixed(2)}s` : "n/a"}</div>
+                  <div><strong>Compose latency:</strong> {typeof trace.performance?.compose_latency_s === "number" ? `${trace.performance.compose_latency_s.toFixed(2)}s` : "n/a"}</div>
+                  <div><strong>Tokens:</strong> {trace.performance?.tokens?.total_tokens ?? "n/a"}</div>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                <div className="text-xs uppercase tracking-wide text-slate-500">SQL Path</div>
+                <div className="mt-2 space-y-2 text-sm text-slate-700">
+                  <div><strong>Present:</strong> {trace.sql?.present ? "yes" : "no"}</div>
+                  <div><strong>Rows:</strong> {trace.sql?.row_count ?? 0}</div>
+                  <div><strong>Table:</strong> {trace.sql?.table || "n/a"}</div>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                <div className="text-xs uppercase tracking-wide text-slate-500">Retrieval Path</div>
+                <div className="mt-2 space-y-2 text-sm text-slate-700">
+                  <div><strong>Hits:</strong> {trace.retrieval?.hit_count ?? 0}</div>
+                  <div><strong>Confidence:</strong> {trace.retrieval?.confidence || "n/a"}</div>
+                  <div><strong>Weak evidence:</strong> {trace.retrieval?.weak_evidence ? "yes" : "no"}</div>
+                  <div><strong>Error:</strong> {trace.retrieval?.error || "none"}</div>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 lg:col-span-2">
+                <div className="text-xs uppercase tracking-wide text-slate-500">Filters</div>
+                <pre className="mt-2 overflow-auto rounded-xl bg-slate-950 p-3 text-xs text-slate-100">
+                  <code>{prettyJson(trace.filters)}</code>
+                </pre>
+              </div>
+            </div>
+          </details>
         )}
 
         {!isUser && thinkingTrace.length > 0 && <ThinkingTrace steps={thinkingTrace} />}

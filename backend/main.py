@@ -33,6 +33,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, EmailStr, Field, validator
 from .dashboard_router import router as dashboard_router
+from .ai_observability import (
+    build_confidence_payload,
+    build_trace_payload,
+    load_ai_metrics_payload,
+)
 from backend.data_explorer import EXPLORER, DataExplorerError, MAX_EXPORT_ROWS
 from backend.emailer import send_email, is_configured as email_is_configured
 from .gdrive import drive_uploader
@@ -948,6 +953,20 @@ def build_assistant_payload(result: Dict[str, Any], question: str) -> Dict[str, 
     thinking_trace = result.get("thinking_trace") or state_snapshot.get("thinking")
     if thinking_trace:
         payload["thinking_trace"] = thinking_trace
+    confidence = build_confidence_payload(
+        result=result,
+        bundle=bundle,
+        state_snapshot=state_snapshot,
+        telemetry=telemetry,
+    )
+    payload["confidence"] = confidence
+    payload["trace"] = build_trace_payload(
+        result=result,
+        bundle=bundle,
+        state_snapshot=state_snapshot,
+        telemetry=telemetry,
+        confidence=confidence,
+    )
     payload = {k: v for k, v in payload.items() if v is not None}
     payload = _sanitize_nan(payload)
     logger.info("[NL2SQL] Final normalized assistant payload prepared.")
@@ -1290,6 +1309,13 @@ async def api_health_ready():
 @app.get("/api/health/status")
 async def api_health_status():
     return _health_snapshot()
+
+
+@app.get("/api/ai/metrics")
+async def api_ai_metrics():
+    reports_dir = Path(__file__).resolve().parents[1] / "evals" / "reports"
+    payload = load_ai_metrics_payload(reports_dir, _health_snapshot())
+    return JSONResponse(content=safe_json(payload))
 
 
 # ---------------------------------------------------------------------------

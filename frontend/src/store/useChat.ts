@@ -19,6 +19,47 @@ export interface ThinkingStep {
   elapsed_ms?: number;
 }
 
+export interface ConfidenceBand {
+  band: "high" | "medium" | "low" | string;
+  score: number;
+  label?: string;
+  reasons?: string[];
+}
+
+export interface AssistantTrace {
+  intent?: string;
+  scope?: string;
+  policy?: string;
+  filters?: Record<string, unknown>;
+  sql?: {
+    present?: boolean;
+    row_count?: number;
+    query_preview?: string | null;
+    table?: string | null;
+  };
+  retrieval?: {
+    hit_count?: number;
+    weak_evidence?: boolean;
+    confidence?: string | null;
+    summary?: string | null;
+    error?: string | null;
+  };
+  performance?: {
+    latency_ms?: number;
+    total_latency_s?: number;
+    compose_latency_s?: number;
+    hybrid_sql_latency_s?: number;
+    hybrid_rag_latency_s?: number;
+    tokens?: {
+      prompt_tokens?: number;
+      completion_tokens?: number;
+      total_tokens?: number;
+    };
+  };
+  degraded?: boolean;
+  degraded_reasons?: string[];
+}
+
 export interface AssistantPayload {
   sql?: string;
   params?: string[];
@@ -83,6 +124,15 @@ export interface AssistantPayload {
   >;
   thinking_trace?: ThinkingStep[];
   portfolio_triage?: Record<string, unknown>;
+  confidence?: {
+    overall?: ConfidenceBand;
+    sql?: ConfidenceBand;
+    rag?: ConfidenceBand;
+    degraded?: boolean;
+    degraded_reasons?: string[];
+    weak_evidence?: boolean;
+  };
+  trace?: AssistantTrace;
 }
 
 export interface Message {

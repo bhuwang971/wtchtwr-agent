@@ -1,0 +1,143 @@
+{
+  "cases": [
+    {
+      "id": "adversarial-hybrid-contradictory-brooklyn-midtown",
+      "category": "hybrid",
+      "tags": ["adversarial", "hybrid", "contradictory-filters"],
+      "query": "Compare our Midtown pricing versus the market, but keep the guest complaints focused on Brooklyn only.",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "scope": "Hybrid",
+        "require_sql": true,
+        "min_rag_snippets": 1
+      },
+      "manual_checks": [
+        "Confirm SQL stays on Midtown while retrieval evidence reflects the stated Brooklyn complaint constraint.",
+        "If the system cannot reconcile both clauses cleanly, it should surface partial confidence instead of bluffing."
+      ],
+      "notes": "Designed to test whether the agent exposes ambiguity rather than silently collapsing filters."
+    },
+    {
+      "id": "adversarial-rag-indirect-cleanliness",
+      "category": "rag",
+      "tags": ["adversarial", "rag", "indirect-wording", "cleanliness"],
+      "query": "What do reviews imply about hygiene issues without literally saying cleanliness?",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "SENTIMENT_REVIEWS",
+        "min_rag_snippets": 1
+      },
+      "manual_checks": [
+        "Retrieved snippets should actually mention dirty, unclean, or equivalent hygiene complaints."
+      ],
+      "notes": "Tests indirect review phrasing and semantic retrieval."
+    },
+    {
+      "id": "adversarial-sql-vague-top-performers",
+      "category": "sql",
+      "tags": ["adversarial", "sql", "vague-business-language"],
+      "query": "Which of our listings are quietly doing the heavy lifting on revenue?",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "require_sql": true,
+        "filters_subset": {
+          "is_highbury": true
+        },
+        "min_rows": 1
+      },
+      "manual_checks": [
+        "Check whether the system interprets 'heavy lifting on revenue' as a revenue-ranked listing query."
+      ],
+      "notes": "Business-language paraphrase for a revenue leaderboard question."
+    },
+    {
+      "id": "adversarial-hybrid-unsupported-missing-evidence",
+      "category": "hybrid",
+      "tags": ["adversarial", "hybrid", "unsupported", "abstention"],
+      "query": "Show me Staten Island revenue vs market and back it up with guest complaints for our portfolio there.",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "scope": "Hybrid",
+        "require_sql": true
+      },
+      "manual_checks": [
+        "If the portfolio has sparse or no Staten Island evidence, the answer should degrade gracefully and say evidence is weak."
+      ],
+      "notes": "Tests abstention and degraded-mode behavior when the requested slice may be sparse."
+    },
+    {
+      "id": "adversarial-triage-noisy-prompt",
+      "category": "triage",
+      "tags": ["adversarial", "triage", "noisy-phrasing"],
+      "query": "Give me the 'what is going wrong and what should I fix first' view for Highbury in Manhattan.",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "PORTFOLIO_TRIAGE_ADVANCED",
+        "policy": "PORTFOLIO_TRIAGE",
+        "filters_subset": {
+          "borough": ["Manhattan"],
+          "is_highbury": true
+        }
+      },
+      "manual_checks": [
+        "The triage should stay Manhattan-only and prioritize operational fixes rather than generic commentary."
+      ],
+      "notes": "Tests role intent from plain business phrasing rather than explicit 'triage' wording."
+    },
+    {
+      "id": "adversarial-expansion-constraint-following",
+      "category": "expansion",
+      "tags": ["adversarial", "expansion", "constraints"],
+      "query": "Recommend where Highbury should expand next, but do not use Manhattan and do not drift outside New York City.",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "intent": "EXPANSION_SCOUT",
+        "policy": "EXPANSION_SCOUT"
+      },
+      "manual_checks": [
+        "Recommendations should honor both constraints: NYC only, Manhattan excluded."
+      ],
+      "notes": "Constraint-following case for external-source planning."
+    },
+    {
+      "id": "adversarial-rag-negative-vs-positive-conflict",
+      "category": "rag",
+      "tags": ["adversarial", "rag", "conflicting-sentiment"],
+      "query": "Guests seem split on Brooklyn. What are the strongest complaints, not the praise?",
+      "composer_enabled": false,
+      "expected": {
+        "filters_subset": {
+          "borough": ["Brooklyn"],
+          "sentiment_label": "negative"
+        },
+        "min_rag_snippets": 1
+      },
+      "manual_checks": [
+        "The answer should bias toward negative evidence and avoid mixing in positive snippets unless it labels them explicitly."
+      ],
+      "notes": "Tests conflict resolution when the user explicitly prioritizes the complaint side."
+    },
+    {
+      "id": "adversarial-sql-compare-implicit-market",
+      "category": "sql",
+      "tags": ["adversarial", "sql", "compare", "implicit-market"],
+      "query": "Are our Upper West Side prices punching above the neighborhood around us?",
+      "tenant": "highbury",
+      "composer_enabled": false,
+      "expected": {
+        "policy": "SQL_COMPARE",
+        "require_sql": true,
+        "min_rows": 1
+      },
+      "manual_checks": [
+        "Check whether the system correctly interprets the neighborhood benchmark as a Highbury vs market comparison."
+      ],
+      "notes": "Tests implicit comparison language without explicit 'compare' wording."
+    }
+  ]
+}
