@@ -409,6 +409,11 @@ export interface InterviewMetricsPack {
   benchmark_report: string;
   benchmark_file: string;
   generated_at: string;
+  model_label?: string;
+  openai_model?: string | null;
+  openai_fallback_model?: string | null;
+  nl2sql_model?: string | null;
+  nl2sql_fallback_model?: string | null;
   headline_metrics: {
     case_pass_rate: number;
     case_passed: number;
@@ -440,13 +445,29 @@ export interface InterviewMetricsPack {
   strongest_categories: Array<{ name: string; pass_rate: number; passed: number; total: number }>;
   weakest_categories: Array<{ name: string; pass_rate: number; passed: number; total: number }>;
   failed_case_ids: string[];
+  failed_case_count?: number;
+  slowest_cases?: Array<{
+    case_id: string;
+    category: string;
+    latency_s: number;
+    policy?: string | null;
+  }>;
+  policy_breakdown?: Record<string, { pass_rate: number; passed: number; total: number; failed?: number }>;
+  intent_breakdown?: Record<string, { pass_rate: number; passed: number; total: number; failed?: number }>;
+  delta_vs_previous?: {
+    pass_rate_delta?: number;
+    assertion_pass_rate_delta?: number;
+    p50_latency_delta_s?: number;
+    p95_latency_delta_s?: number;
+  } | null;
+  interview_talking_points?: string[];
 }
 
 export interface AiMetricsResponse {
   service: string;
   generated_at: string;
   health: HealthSnapshot;
-  latest_interview_metrics?: Record<string, unknown>;
+  latest_interview_metrics?: InterviewMetricsPack;
   packs: Record<string, InterviewMetricsPack>;
 }
 
