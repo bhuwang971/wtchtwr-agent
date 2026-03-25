@@ -61,7 +61,8 @@
       "composer_enabled": false,
       "expected": {
         "scope": "Hybrid",
-        "require_sql": true
+        "require_sql": true,
+        "require_abstain": true
       },
       "manual_checks": [
         "If the portfolio has sparse or no Staten Island evidence, the answer should degrade gracefully and say evidence is weak."

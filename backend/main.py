@@ -960,6 +960,18 @@ def build_assistant_payload(result: Dict[str, Any], question: str) -> Dict[str, 
         telemetry=telemetry,
     )
     payload["confidence"] = confidence
+    if confidence.get("abstain_recommended"):
+        response_type = str(payload.get("response_type") or "").lower()
+        if response_type in {"rag", "hybrid", "sql", "expansion", "text"}:
+            abstain_lines = [
+                "I do not have enough grounded evidence to answer this confidently.",
+            ]
+            degraded_reasons = confidence.get("degraded_reasons") or []
+            if degraded_reasons:
+                abstain_lines.append("Why: " + "; ".join(str(reason) for reason in degraded_reasons[:2]))
+            abstain_lines.append("Try broadening the filters, asking for a simpler slice, or checking the cited evidence directly.")
+            payload["summary"] = " ".join(abstain_lines)
+            payload["abstained"] = True
     payload["trace"] = build_trace_payload(
         result=result,
         bundle=bundle,

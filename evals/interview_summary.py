@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -39,6 +40,38 @@ def _top_bucket_items(buckets: Dict[str, AggregateBucket], *, reverse: bool) -> 
     )
 
 
+def _token_metrics(report: BenchmarkReport) -> Dict[str, Any]:
+    prompt_tokens = 0
+    completion_tokens = 0
+    total_tokens = 0
+    cases_with_usage = 0
+    for result in report.results:
+        telemetry = result.result.get("telemetry") if isinstance(result.result, dict) else None
+        usage = telemetry.get("llm_usage") if isinstance(telemetry, dict) and isinstance(telemetry.get("llm_usage"), dict) else {}
+        prompt = int(usage.get("prompt_tokens") or 0)
+        completion = int(usage.get("completion_tokens") or 0)
+        total = int(usage.get("total_tokens") or (prompt + completion) or 0)
+        if total:
+            cases_with_usage += 1
+        prompt_tokens += prompt
+        completion_tokens += completion
+        total_tokens += total
+
+    input_rate = float(os.getenv("WTCHTWR_COST_INPUT_PER_1K") or 0.0)
+    output_rate = float(os.getenv("WTCHTWR_COST_OUTPUT_PER_1K") or 0.0)
+    estimated_cost = None
+    if input_rate or output_rate:
+        estimated_cost = round((prompt_tokens / 1000.0) * input_rate + (completion_tokens / 1000.0) * output_rate, 4)
+
+    return {
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": completion_tokens,
+        "total_tokens": total_tokens,
+        "cases_with_usage": cases_with_usage,
+        "estimated_cost_usd": estimated_cost,
+    }
+
+
 def build_interview_summary(
     report: BenchmarkReport,
     *,
@@ -48,6 +81,7 @@ def build_interview_summary(
     sql_bucket = _category_bucket(report.results, "sql")
     rag_bucket = _category_bucket(report.results, "rag")
     hybrid_bucket = _category_bucket(report.results, "hybrid")
+    token_metrics = _token_metrics(report)
 
     strongest_categories = [
         {"name": name, **_bucket_to_dict(bucket)}
@@ -114,6 +148,7 @@ def build_interview_summary(
             "p95_latency_s": summary.latency.p95_s,
             "max_latency_s": summary.latency.max_s,
         },
+        "cost_metrics": token_metrics,
         "pipeline_metrics": {
             "overall_pass_rate": report.pass_rate,
             "overall_cases_passed": report.passed_cases,
@@ -141,6 +176,7 @@ def build_interview_summary(
             f"Assertion-level accuracy is {summary.assertion_pass_rate}%, which gives a more granular view than whole-case pass/fail.",
             f"Median latency is {summary.latency.p50_s}s, while p95 latency is {summary.latency.p95_s}s, so long-tail cases are visible and measurable.",
             f"SQL flows are the most stable at {sql_bucket.pass_rate}% pass rate, while weaker categories identify where the roadmap still is.",
+            f"Observed token volume is {token_metrics['total_tokens']} total tokens across the run; set WTCHTWR_COST_INPUT_PER_1K and WTCHTWR_COST_OUTPUT_PER_1K to turn this into an estimated dollar cost.",
         ],
     }
 
@@ -152,6 +188,7 @@ def summary_to_json(summary: Dict[str, Any]) -> str:
 def summary_to_markdown(summary: Dict[str, Any]) -> str:
     headline = summary["headline_metrics"]
     perf = summary["performance_metrics"]
+    cost = summary.get("cost_metrics") or {}
     pipeline = summary["pipeline_metrics"]
 
     lines = [
@@ -176,6 +213,13 @@ def summary_to_markdown(summary: Dict[str, Any]) -> str:
         f"- P50 latency: `{perf['p50_latency_s']}s`",
         f"- P95 latency: `{perf['p95_latency_s']}s`",
         f"- Max latency: `{perf['max_latency_s']}s`",
+        "",
+        "## Cost Metrics",
+        "",
+        f"- Prompt tokens: `{cost.get('prompt_tokens', 0)}`",
+        f"- Completion tokens: `{cost.get('completion_tokens', 0)}`",
+        f"- Total tokens: `{cost.get('total_tokens', 0)}`",
+        f"- Estimated cost: `{cost.get('estimated_cost_usd', 'n/a')}`",
         "",
         "## Pipeline Breakdown",
         "",

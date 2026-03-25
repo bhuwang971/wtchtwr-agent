@@ -39,10 +39,13 @@ export interface AssistantTrace {
   };
   retrieval?: {
     hit_count?: number;
+    raw_hit_count?: number | null;
     weak_evidence?: boolean;
     confidence?: string | null;
     summary?: string | null;
     error?: string | null;
+    reranker?: string | null;
+    reranked_count?: number | null;
   };
   performance?: {
     latency_ms?: number;
@@ -50,6 +53,9 @@ export interface AssistantTrace {
     compose_latency_s?: number;
     hybrid_sql_latency_s?: number;
     hybrid_rag_latency_s?: number;
+    routing_latency_s?: number;
+    sql_latency_s?: number;
+    retrieval_latency_s?: number;
     tokens?: {
       prompt_tokens?: number;
       completion_tokens?: number;
@@ -58,6 +64,7 @@ export interface AssistantTrace {
   };
   degraded?: boolean;
   degraded_reasons?: string[];
+  abstain_recommended?: boolean;
 }
 
 export interface AssistantPayload {
@@ -128,11 +135,15 @@ export interface AssistantPayload {
     overall?: ConfidenceBand;
     sql?: ConfidenceBand;
     rag?: ConfidenceBand;
+    citation_coverage?: ConfidenceBand;
     degraded?: boolean;
     degraded_reasons?: string[];
     weak_evidence?: boolean;
+    evidence_count?: number;
+    abstain_recommended?: boolean;
   };
   trace?: AssistantTrace;
+  abstained?: boolean;
 }
 
 export interface Message {

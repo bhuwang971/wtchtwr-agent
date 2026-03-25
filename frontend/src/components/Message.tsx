@@ -673,6 +673,11 @@ export const MessageBubble: React.FC<MessageProps> = ({
                   Retrieval: {confidence.rag.band}
                 </span>
               )}
+              {confidence.citation_coverage && (
+                <span className={`rounded-full border px-2.5 py-1 font-semibold ${confidenceTone(confidence.citation_coverage.band)}`}>
+                  Grounding: {confidence.citation_coverage.band}
+                </span>
+              )}
             </div>
             {(confidence.overall.reasons?.length || confidence.degraded_reasons?.length) && (
               <div className="mt-3 space-y-1 text-xs leading-relaxed text-slate-600">
@@ -682,6 +687,9 @@ export const MessageBubble: React.FC<MessageProps> = ({
                 {(confidence.degraded_reasons || []).map((reason) => (
                   <div key={`degraded-reason-${reason}`} className="text-amber-700">• {reason}</div>
                 ))}
+                {confidence.abstain_recommended && (
+                  <div className="text-rose-700">• The system recommends abstaining or verifying this answer before relying on it.</div>
+                )}
               </div>
             )}
           </div>
@@ -753,8 +761,11 @@ export const MessageBubble: React.FC<MessageProps> = ({
                 <div className="text-xs uppercase tracking-wide text-slate-500">Retrieval Path</div>
                 <div className="mt-2 space-y-2 text-sm text-slate-700">
                   <div><strong>Hits:</strong> {trace.retrieval?.hit_count ?? 0}</div>
+                  <div><strong>Raw hits:</strong> {trace.retrieval?.raw_hit_count ?? "n/a"}</div>
                   <div><strong>Confidence:</strong> {trace.retrieval?.confidence || "n/a"}</div>
                   <div><strong>Weak evidence:</strong> {trace.retrieval?.weak_evidence ? "yes" : "no"}</div>
+                  <div><strong>Reranker:</strong> {trace.retrieval?.reranker || "n/a"}</div>
+                  <div><strong>Reranked count:</strong> {trace.retrieval?.reranked_count ?? "n/a"}</div>
                   <div><strong>Error:</strong> {trace.retrieval?.error || "none"}</div>
                 </div>
               </div>
@@ -763,6 +774,22 @@ export const MessageBubble: React.FC<MessageProps> = ({
                 <pre className="mt-2 overflow-auto rounded-xl bg-slate-950 p-3 text-xs text-slate-100">
                   <code>{prettyJson(trace.filters)}</code>
                 </pre>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 lg:col-span-2">
+                <div className="text-xs uppercase tracking-wide text-slate-500">Why this answer?</div>
+                <div className="mt-2 space-y-2 text-sm text-slate-700">
+                  <div>
+                    The system chose <strong>{trace.policy || "n/a"}</strong> based on intent <strong>{trace.intent || "n/a"}</strong> and scope <strong>{trace.scope || "n/a"}</strong>.
+                  </div>
+                  <div>
+                    It used {trace.sql?.present ? "structured SQL evidence" : "no SQL evidence"} and {trace.retrieval?.hit_count ?? 0} retrieved review snippet(s).
+                  </div>
+                  {trace.abstain_recommended && (
+                    <div className="text-rose-700">
+                      This answer path recommends abstaining or manual verification because grounded evidence is weak.
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </details>

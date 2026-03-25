@@ -461,6 +461,67 @@ export interface InterviewMetricsPack {
     p95_latency_delta_s?: number;
   } | null;
   interview_talking_points?: string[];
+  cost_metrics?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+    cases_with_usage: number;
+    estimated_cost_usd?: number | null;
+  };
+}
+
+export interface PackHistoryPoint {
+  generated_at: string;
+  benchmark_report: string;
+  overall_pass_rate: number;
+  assertion_pass_rate: number;
+  sql_pass_rate: number;
+  rag_pass_rate: number;
+  hybrid_pass_rate: number;
+  p50_latency_s: number;
+  p95_latency_s: number;
+}
+
+export interface DataQualitySnapshot {
+  status: string;
+  summary?: {
+    highbury_listing_count?: number;
+    market_listing_count?: number;
+    review_row_count?: number;
+    contract_ok?: boolean;
+  };
+  checks?: Record<string, unknown>;
+  issues?: string[];
+}
+
+export interface BusinessKpiResponse {
+  headline?: {
+    portfolio_listings?: number;
+    pricing_opportunities_found?: number;
+    underperforming_listings_flagged?: number;
+    portfolio_avg_price?: number | null;
+    portfolio_avg_revenue_30?: number | null;
+    portfolio_avg_rating?: number | null;
+    portfolio_median_occupancy_90?: number | null;
+  };
+  complaint_themes_by_borough?: Array<{
+    borough: string;
+    themes: Array<{ theme: string; count: number }>;
+  }>;
+  expansion_candidates?: Array<{
+    neighbourhood: string;
+    borough: string;
+    listings: number;
+    avg_occupancy_90?: number | null;
+    avg_price?: number | null;
+    avg_revenue_30?: number | null;
+    avg_rating?: number | null;
+  }>;
+  decision_support_examples?: Array<{
+    persona: string;
+    before: string;
+    after: string;
+  }>;
 }
 
 export interface AiMetricsResponse {
@@ -469,6 +530,9 @@ export interface AiMetricsResponse {
   health: HealthSnapshot;
   latest_interview_metrics?: InterviewMetricsPack;
   packs: Record<string, InterviewMetricsPack>;
+  pack_history?: Record<string, PackHistoryPoint[]>;
+  data_quality?: DataQualitySnapshot;
+  business_kpis?: BusinessKpiResponse;
 }
 
 export async function fetchAiMetrics(): Promise<AiMetricsResponse> {

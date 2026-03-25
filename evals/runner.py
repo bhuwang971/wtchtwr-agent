@@ -230,6 +230,18 @@ def _latency_value(result: Dict[str, Any]) -> float:
             return 0.0
 
 
+def _did_abstain(result: Dict[str, Any]) -> bool:
+    answer_text = _normalize_text(result.get("answer_text"))
+    abstention_markers = [
+        "not enough grounded evidence",
+        "insufficient evidence",
+        "cannot answer this confidently",
+        "do not have enough",
+        "no grounded evidence",
+    ]
+    return any(marker in answer_text for marker in abstention_markers)
+
+
 def _percentile(values: Sequence[float], percentile: float) -> float:
     if not values:
         return 0.0
@@ -433,6 +445,15 @@ def evaluate_case(case: Dict[str, Any], *, model_config: Optional[ModelConfig] =
                 actual_value=actual_value,
             )
 
+    if "require_abstain" in expected:
+        actual = _did_abstain(result)
+        add_assertion(
+            "require_abstain",
+            actual == bool(expected["require_abstain"]),
+            expected_value=bool(expected["require_abstain"]),
+            actual_value=actual,
+        )
+
     passed = bool(assertions) and all(assertion.passed for assertion in assertions)
     if not assertions:
         passed = True
@@ -447,6 +468,7 @@ def evaluate_case(case: Dict[str, Any], *, model_config: Optional[ModelConfig] =
         "row_count": _row_count(result),
         "rag_count": _rag_count(result),
         "latency": result.get("latency"),
+        "abstained": _did_abstain(result),
         "manual_checks": case.get("manual_checks") or [],
         "notes": case.get("notes"),
     }

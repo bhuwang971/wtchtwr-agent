@@ -8,6 +8,9 @@ This folder contains a lightweight benchmark/evaluation harness for checking res
 - `benchmarks.local.json`: your main tuned regression pack
 - `benchmarks.holdout.json`: separate holdout/adversarial pack for paraphrases, multi-clause prompts, and constraint-following checks
 - `benchmarks.adversarial.json`: explicit stress pack for contradictory prompts, vague business phrasing, unsupported slices, and weak-evidence handling
+- `benchmarks.blind.sample.json`: starter blind pack template you should keep separate from daily tuning
+- `review_sheet.template.csv`: human-labeled answer review template
+- `error_taxonomy.md`: shared labels for benchmark failure analysis
 - `runner.py`: benchmark execution and scoring logic
 - `interview_summary.py`: interview-ready rollups from benchmark output
 
@@ -26,6 +29,7 @@ Each benchmark case can assert:
 - `max_rows`
 - `min_rag_snippets`
 - `field_equals`
+- `require_abstain`
 
 You can also add `manual_checks` notes for human review.
 

@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from .business_kpis import build_business_kpi_snapshot
+from .data_trust import build_data_quality_snapshot, default_paths
 from evals.interview_summary import build_interview_summary, load_report
 
 
@@ -52,6 +54,8 @@ def build_confidence_payload(
     rag_count = len(rag_snippets)
     weak_evidence = bool(state_rag.get("weak_evidence"))
     rag_state_confidence = str(state_rag.get("confidence") or "").lower()
+    citations = state_rag.get("citations") if isinstance(state_rag.get("citations"), list) else []
+    evidence_count = int(state_rag.get("evidence_count") or rag_count or 0)
 
     sql_score = 0.15
     sql_reasons: List[str] = []
@@ -108,9 +112,31 @@ def build_confidence_payload(
     if degraded_reasons:
         overall_score = max(0.2, overall_score - 0.15)
 
+    citation_coverage = 0.0
+    if response_type == "sql":
+        citation_coverage = 1.0 if rows else (0.4 if str(sql_text).strip() else 0.0)
+    elif response_type == "rag":
+        citation_coverage = min(evidence_count / 4.0, 1.0) if citations or rag_count else 0.0
+    elif response_type == "hybrid":
+        sql_grounding = 1.0 if rows else (0.5 if str(sql_text).strip() else 0.0)
+        rag_grounding = min(evidence_count / 4.0, 1.0) if citations or rag_count else 0.0
+        citation_coverage = round((sql_grounding + rag_grounding) / 2.0, 2)
+    elif response_type == "expansion":
+        source_count = int(telemetry.get("expansion_source_count") or 0)
+        citation_coverage = min(source_count / 4.0, 1.0)
+
+    abstain_recommended = False
+    if response_type in {"rag", "hybrid"} and (rag_error or (rag_count == 0 and weak_evidence)):
+        abstain_recommended = True
+    if response_type == "sql" and not rows and not str(sql_text).strip():
+        abstain_recommended = True
+    if overall_score <= 0.35 and not rows and rag_count <= 1:
+        abstain_recommended = True
+
     overall_score = _clamp_score(overall_score)
     sql_score = _clamp_score(sql_score)
     rag_score = _clamp_score(rag_score)
+    citation_coverage = _clamp_score(citation_coverage)
 
     return {
         "overall": {
@@ -138,6 +164,16 @@ def build_confidence_payload(
         "degraded": bool(degraded_reasons),
         "degraded_reasons": degraded_reasons,
         "weak_evidence": weak_evidence,
+        "citation_coverage": {
+            "band": _band(citation_coverage),
+            "score": citation_coverage,
+            "label": "Grounding coverage",
+            "reasons": [
+                "Measures how much of the answer is backed by SQL rows or retrieved evidence.",
+            ],
+        },
+        "evidence_count": evidence_count,
+        "abstain_recommended": abstain_recommended,
     }
 
 
@@ -178,6 +214,9 @@ def build_trace_payload(
             "confidence": rag_state.get("confidence"),
             "summary": rag_state.get("summary"),
             "error": telemetry.get("rag_error"),
+            "raw_hit_count": len(rag_state.get("retrieved_hits") or []) if isinstance(rag_state.get("retrieved_hits"), list) else None,
+            "reranker": telemetry.get("rag_reranker"),
+            "reranked_count": telemetry.get("rag_reranked_count"),
         },
         "performance": {
             "latency_ms": telemetry.get("latency_ms"),
@@ -185,10 +224,14 @@ def build_trace_payload(
             "compose_latency_s": telemetry.get("compose_latency_s"),
             "hybrid_sql_latency_s": telemetry.get("hybrid_sql_latency_s"),
             "hybrid_rag_latency_s": telemetry.get("hybrid_rag_latency_s"),
+            "routing_latency_s": telemetry.get("intent_latency_s"),
+            "sql_latency_s": telemetry.get("sql_total_time_s"),
+            "retrieval_latency_s": telemetry.get("rag_total_time_s"),
             "tokens": _token_summary(telemetry),
         },
         "degraded": confidence.get("degraded", False),
         "degraded_reasons": confidence.get("degraded_reasons") or [],
+        "abstain_recommended": confidence.get("abstain_recommended", False),
     }
 
 
@@ -197,6 +240,42 @@ def _safe_load_json(path: Path) -> Optional[Dict[str, Any]]:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return None
+
+
+def _load_data_quality_payload(repo_root: Path) -> Dict[str, Any]:
+    report_path = repo_root / "docs" / "reports" / "data-quality-latest.json"
+    payload = _safe_load_json(report_path)
+    if payload:
+        return payload
+    try:
+        return build_data_quality_snapshot(default_paths(repo_root))
+    except Exception as exc:
+        return {"status": "unknown", "issues": [f"Unable to load data quality snapshot: {exc}"]}
+
+
+def _benchmark_history(reports_dir: Path) -> Dict[str, List[Dict[str, Any]]]:
+    grouped: Dict[str, List[Dict[str, Any]]] = {}
+    for path in sorted(reports_dir.glob("benchmark-report-*.json")):
+        try:
+            report = load_report(path)
+        except Exception:
+            continue
+        pack_name = Path(report.benchmark_file).stem
+        summary = build_interview_summary(report)
+        grouped.setdefault(pack_name, []).append(
+            {
+                "generated_at": report.generated_at,
+                "benchmark_report": path.name,
+                "overall_pass_rate": summary["pipeline_metrics"]["overall_pass_rate"],
+                "assertion_pass_rate": summary["headline_metrics"]["assertion_pass_rate"],
+                "sql_pass_rate": summary["pipeline_metrics"]["sql_pass_rate"],
+                "rag_pass_rate": summary["pipeline_metrics"]["rag_pass_rate"],
+                "hybrid_pass_rate": summary["pipeline_metrics"]["hybrid_pass_rate"],
+                "p50_latency_s": summary["performance_metrics"]["p50_latency_s"],
+                "p95_latency_s": summary["performance_metrics"]["p95_latency_s"],
+            }
+        )
+    return {pack: history[-12:] for pack, history in grouped.items()}
 
 
 def _latest_benchmark_reports(reports_dir: Path) -> Dict[str, Dict[str, Any]]:
@@ -220,24 +299,42 @@ def _latest_benchmark_reports(reports_dir: Path) -> Dict[str, Dict[str, Any]]:
             "benchmark_report": path.name,
             "benchmark_file": report.benchmark_file,
             "generated_at": report.generated_at,
+            "model_label": summary.get("model_label"),
             "headline_metrics": summary["headline_metrics"],
             "performance_metrics": summary["performance_metrics"],
             "pipeline_metrics": summary["pipeline_metrics"],
             "strongest_categories": summary["strongest_categories"],
             "weakest_categories": summary["weakest_categories"],
             "failed_case_ids": summary["failed_case_ids"],
+            "failed_case_count": summary["failed_case_count"],
+            "slowest_cases": summary["slowest_cases"],
+            "policy_breakdown": summary["policy_breakdown"],
+            "intent_breakdown": summary["intent_breakdown"],
+            "delta_vs_previous": summary["delta_vs_previous"],
+            "interview_talking_points": summary["interview_talking_points"],
         }
     return payloads
 
 
 def load_ai_metrics_payload(reports_dir: Path, health_snapshot: Dict[str, Any]) -> Dict[str, Any]:
+    repo_root = reports_dir.parents[1]
     interview_latest = _safe_load_json(reports_dir / "interview-metrics-latest.json")
     interview_default = _safe_load_json(reports_dir / "interview-metrics.json")
     latest_packs = _latest_benchmark_reports(reports_dir)
+    benchmark_history = _benchmark_history(reports_dir)
+    business_kpis: Dict[str, Any]
+    try:
+        business_kpis = build_business_kpi_snapshot(repo_root)
+    except Exception as exc:
+        business_kpis = {"error": str(exc)}
+    data_quality = _load_data_quality_payload(repo_root)
     return {
         "service": "wtchtwr-ai-observability",
         "generated_at": health_snapshot.get("checked_at"),
         "health": health_snapshot,
         "latest_interview_metrics": interview_latest or interview_default,
         "packs": latest_packs,
+        "pack_history": benchmark_history,
+        "data_quality": data_quality,
+        "business_kpis": business_kpis,
     }

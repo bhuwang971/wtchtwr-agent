@@ -1,0 +1,72 @@
+{
+  "status": "attention",
+  "summary": {
+    "highbury_listing_count": 38,
+    "market_listing_count": 36403,
+    "review_row_count": 657704,
+    "contract_ok": true
+  },
+  "contracts": {
+    "ok": true,
+    "checks": [
+      {
+        "type": "duckdb_table",
+        "name": "highbury_listings",
+        "ok": true,
+        "missing_columns": [],
+        "column_count": 31
+      },
+      {
+        "type": "duckdb_table",
+        "name": "listings_cleaned",
+        "ok": true,
+        "missing_columns": [],
+        "column_count": 31
+      },
+      {
+        "type": "parquet_file",
+        "name": "review_sentiment_scores.parquet",
+        "ok": true,
+        "missing_columns": [],
+        "column_count": 13
+      },
+      {
+        "type": "parquet_file",
+        "name": "reviews_enriched.parquet",
+        "ok": true,
+        "missing_columns": [],
+        "column_count": 8
+      }
+    ]
+  },
+  "checks": {
+    "duplicate_listing_ids": {
+      "highbury": 0,
+      "market": 0
+    },
+    "invalid_coordinates": {
+      "highbury": 0,
+      "market": 0
+    },
+    "impossible_prices": {
+      "highbury": 0,
+      "market": 115
+    },
+    "inconsistent_borough_labels": [],
+    "listing_null_rates": {
+      "price_null_rate": 0.0,
+      "occupancy_null_rate": 0.0,
+      "revenue_null_rate": 0.0,
+      "rating_null_rate": 0.0
+    },
+    "review_null_rates": {
+      "comments_null_rate": 0.0,
+      "sentiment_label_null_rate": 0.0,
+      "compound_null_rate": 0.0
+    },
+    "duplicate_reviews": 0
+  },
+  "issues": [
+    "Impossible or missing prices found in listing tables."
+  ]
+}

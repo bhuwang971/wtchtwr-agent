@@ -1,0 +1,16 @@
+{
+  "cases": [
+    {
+      "id": "blind-sql-template",
+      "category": "sql",
+      "query": "Add your blind benchmark question here.",
+      "composer_enabled": false,
+      "expected": {
+        "require_sql": true
+      },
+      "manual_checks": [
+        "Keep this pack separate from daily tuning so it stays a true blind evaluation set."
+      ]
+    }
+  ]
+}

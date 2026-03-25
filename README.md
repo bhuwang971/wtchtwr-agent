@@ -102,6 +102,8 @@ The current build includes several guardrails and interview-friendly observabili
   - answer confidence
   - SQL confidence
   - retrieval confidence
+  - grounding coverage
+  - abstention recommendation when evidence is weak
 - AI trace panel in the chat UI
   - intent
   - scope
@@ -111,6 +113,23 @@ The current build includes several guardrails and interview-friendly observabili
   - retrieval path
   - token usage
   - latency and degraded signals
+
+## Data trust and documentation
+
+The repo now includes explicit data-trust artifacts so the analytics layer is easier to defend in interviews.
+
+- `docs/data_dictionary.md`
+  - key business fields such as occupancy, revenue, Highbury flags, and review sentiment metrics
+- `docs/data_lineage.md`
+  - raw source -> clean parquet -> DuckDB/Qdrant -> product surfaces
+- `docs/architecture.md`
+  - architecture diagram, agent state model, tool-selection rationale, and failure map
+- `scripts/data_quality_report.py`
+  - generates the latest data quality report
+- `docs/reports/data-quality-latest.json`
+  - latest machine-readable data trust snapshot
+- `docs/reports/data-quality-latest.md`
+  - latest human-readable data trust summary
 
 ## Evaluation discipline
 
@@ -259,6 +278,13 @@ cd C:\Users\bhuwa\wtchtwr
   --model gpt4omini:gpt-4o-mini:gpt-4o-mini
 ```
 
+### Data quality snapshot
+
+```powershell
+cd C:\Users\bhuwa\wtchtwr
+.\.venv\Scripts\python scripts\data_quality_report.py
+```
+
 ## Useful endpoints
 
 - `GET /api/health/live`
@@ -269,6 +295,17 @@ cd C:\Users\bhuwa\wtchtwr
 - `POST /api/dashboard/view`
 - `GET /api/data-explorer/schema`
 - `POST /api/data-explorer/query`
+
+## Evaluation artifacts for interviews
+
+These are useful if you want to show a more rigorous evaluation story:
+
+- `evals/benchmarks.local.json`
+- `evals/benchmarks.holdout.json`
+- `evals/benchmarks.adversarial.json`
+- `evals/benchmarks.blind.sample.json`
+- `evals/review_sheet.template.csv`
+- `evals/error_taxonomy.md`
 
 ## Repo layout
 
