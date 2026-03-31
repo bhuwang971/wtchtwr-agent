@@ -13,6 +13,7 @@ pytest_policy.log
 evals/reports/*
 !evals/reports/*.json
 !evals/reports/*.md
+docs/interview_mastery/*.html
 
 # ------------------------------
 # 🚫 Jupyter notebooks (large outputs)
