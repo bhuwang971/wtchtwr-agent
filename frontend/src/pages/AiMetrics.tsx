@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 
 import {
   fetchAiMetrics,
@@ -15,6 +15,8 @@ const pct = (value?: number) => (typeof value === "number" ? `${value.toFixed(2)
 const seconds = (value?: number) => (typeof value === "number" ? `${value.toFixed(2)}s` : "n/a");
 const currency = (value?: number | null) => (typeof value === "number" ? `$${value.toFixed(2)}` : "n/a");
 const signed = (value?: number) => (typeof value === "number" ? `${value > 0 ? "+" : ""}${value.toFixed(2)}` : "n/a");
+const truncate = (value?: string | null, limit = 260) =>
+  value ? (value.length > limit ? `${value.slice(0, limit - 1).trimEnd()}â€¦` : value) : "n/a";
 
 const statusTone = (ok?: boolean) =>
   ok ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200";
@@ -130,7 +132,7 @@ const TrendHistory = ({ pack, history }: { pack: string; history: PackHistoryPoi
     <SectionTitle
       eyebrow="Trend History"
       title={`${packTitle(pack)} trend line`}
-      detail="Use this to show that benchmark quality is moving over time, not just on the latest run."
+      detail="Use this to show benchmark movement over time, not just a single good run."
     />
     <div className="mt-5 overflow-x-auto">
       <table className="min-w-full text-sm">
@@ -163,109 +165,12 @@ const TrendHistory = ({ pack, history }: { pack: string; history: PackHistoryPoi
   </section>
 );
 
-const DataQualityPanel = ({ data }: { data?: AiMetricsResponse["data_quality"] }) => (
-  <section className={statCard}>
-    <SectionTitle
-      eyebrow="Data Trust"
-      title="Data quality and contracts"
-      detail="This section makes the data layer defensible in interviews: schema contracts, row counts, and basic quality checks."
-    />
-    <div className="mt-5 grid gap-3 md:grid-cols-4">
-      <MetricTile label="Status" value={data?.status || "unknown"} />
-      <MetricTile label="Highbury listings" value={String(data?.summary?.highbury_listing_count ?? "n/a")} />
-      <MetricTile label="Market listings" value={String(data?.summary?.market_listing_count ?? "n/a")} />
-      <MetricTile label="Review rows" value={String(data?.summary?.review_row_count ?? "n/a")} />
-    </div>
-    <div className="mt-5 grid gap-4 lg:grid-cols-2">
-      <div className={softCard}>
-        <div className="text-sm font-semibold text-slate-800">Open issues</div>
-        <div className="mt-3 space-y-2">
-          {(data?.issues || []).length === 0 && <div className="rounded-xl bg-white px-3 py-2 text-sm text-slate-600">No open issues in the latest snapshot.</div>}
-          {(data?.issues || []).map((issue) => (
-            <div key={issue} className="rounded-xl bg-white px-3 py-2 text-sm text-slate-700">
-              {issue}
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className={softCard}>
-        <div className="text-sm font-semibold text-slate-800">Quality checks</div>
-        <pre className="mt-3 overflow-auto rounded-2xl bg-slate-950 p-4 text-xs text-slate-100">
-          <code>{JSON.stringify(data?.checks || {}, null, 2)}</code>
-        </pre>
-      </div>
-    </div>
-  </section>
-);
-
-const BusinessKpiPanel = ({ data }: { data?: AiMetricsResponse["business_kpis"] }) => (
-  <section className={statCard}>
-    <SectionTitle
-      eyebrow="Business Value"
-      title="Decision-support KPIs"
-      detail="This is the business-facing layer: where the assistant creates value for operators, revenue managers, and expansion leads."
-    />
-    <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-      <MetricTile label="Portfolio listings" value={String(data?.headline?.portfolio_listings ?? "n/a")} />
-      <MetricTile label="Pricing opportunities" value={String(data?.headline?.pricing_opportunities_found ?? "n/a")} />
-      <MetricTile label="Underperformers flagged" value={String(data?.headline?.underperforming_listings_flagged ?? "n/a")} />
-      <MetricTile label="Median occupancy 90" value={pct(data?.headline?.portfolio_median_occupancy_90)} />
-      <MetricTile label="Average price" value={currency(data?.headline?.portfolio_avg_price)} />
-      <MetricTile label="Average revenue 30" value={currency(data?.headline?.portfolio_avg_revenue_30)} />
-      <MetricTile label="Average rating" value={String(data?.headline?.portfolio_avg_rating ?? "n/a")} />
-    </div>
-    <div className="mt-5 grid gap-4 xl:grid-cols-2">
-      <div className={softCard}>
-        <div className="text-sm font-semibold text-slate-800">Complaint themes by borough</div>
-        <div className="mt-3 space-y-3">
-          {(data?.complaint_themes_by_borough || []).map((borough) => (
-            <div key={borough.borough} className="rounded-xl bg-white px-3 py-3">
-              <div className="text-sm font-semibold text-slate-800">{borough.borough}</div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {borough.themes.map((theme) => (
-                  <span key={`${borough.borough}-${theme.theme}`} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-700">
-                    {theme.theme}: {theme.count}
-                  </span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className={softCard}>
-        <div className="text-sm font-semibold text-slate-800">Expansion candidates</div>
-        <div className="mt-3 space-y-3">
-          {(data?.expansion_candidates || []).map((candidate) => (
-            <div key={`${candidate.neighbourhood}-${candidate.borough}`} className="rounded-xl bg-white px-3 py-3">
-              <div className="text-sm font-semibold text-slate-800">
-                {candidate.neighbourhood}, {candidate.borough}
-              </div>
-              <div className="mt-2 text-xs text-slate-600">
-                listings {candidate.listings} • occ90 {pct(candidate.avg_occupancy_90)} • rev30 {currency(candidate.avg_revenue_30)}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-    <div className="mt-5 grid gap-3">
-      {(data?.decision_support_examples || []).map((example) => (
-        <div key={example.persona} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
-          <div className="text-sm font-semibold text-slate-800">{example.persona}</div>
-          <div className="mt-2 text-sm text-slate-600">Before: {example.before}</div>
-          <div className="mt-1 text-sm text-slate-700">After: {example.after}</div>
-        </div>
-      ))}
-    </div>
-  </section>
-);
-
 const LatestRunBoard = ({ latest }: { latest: InterviewMetricsPack }) => (
   <section className={statCard}>
     <SectionTitle
-      eyebrow="Latest Run"
+      eyebrow="Selected Pack"
       title={packTitle(latest.pack)}
-      detail="This is the quickest place to quote current accuracy, latency, cost/token usage, and regressions."
+      detail="Use this board to quote current accuracy, latency, and recent deltas for the selected benchmark pack."
     />
     <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
       <MetricTile label="Overall" value={pct(latest.pipeline_metrics.overall_pass_rate)} />
@@ -294,6 +199,82 @@ const LatestRunBoard = ({ latest }: { latest: InterviewMetricsPack }) => (
         <MetricTile label="P95 delta" value={`${signed(latest.delta_vs_previous.p95_latency_delta_s)}s`} />
       </div>
     )}
+  </section>
+);
+
+const CaseDetailsPanel = ({ pack }: { pack: InterviewMetricsPack }) => (
+  <section className={statCard}>
+    <SectionTitle
+      eyebrow="Benchmark Cases"
+      title={`${packTitle(pack.pack)} questions and outputs`}
+      detail="Open any case to inspect the exact question, compact system output, and assertion-level checks."
+    />
+    <div className="mt-5 space-y-3">
+      {(pack.case_details || []).map((caseItem) => (
+        <details key={`${pack.pack}-${caseItem.case_id}`} className="rounded-2xl border border-slate-200 bg-white px-4 py-4">
+          <summary className="flex cursor-pointer list-none items-start justify-between gap-4">
+            <div>
+              <div className="text-sm font-semibold text-slate-800">{caseItem.case_id}</div>
+              <div className="mt-1 text-sm text-slate-600">{caseItem.query}</div>
+            </div>
+            <div className="flex shrink-0 flex-wrap gap-2 text-xs">
+              <span className={`rounded-full px-3 py-1 font-semibold ${caseItem.passed ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>
+                {caseItem.passed ? "passed" : "failed"}
+              </span>
+              <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">{caseItem.category}</span>
+              {caseItem.policy && <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">{caseItem.policy}</span>}
+            </div>
+          </summary>
+          <div className="mt-4 grid gap-4 xl:grid-cols-2">
+            <div className={softCard}>
+              <div className="text-sm font-semibold text-slate-800">Compact output</div>
+              <div className="mt-3 space-y-2 text-sm text-slate-700">
+                <div><span className="font-semibold text-slate-800">Intent:</span> {caseItem.intent || "n/a"}</div>
+                <div><span className="font-semibold text-slate-800">Scope:</span> {caseItem.scope || "n/a"}</div>
+                <div><span className="font-semibold text-slate-800">Rows:</span> {caseItem.row_count ?? "n/a"}</div>
+                <div><span className="font-semibold text-slate-800">RAG snippets:</span> {caseItem.rag_count ?? "n/a"}</div>
+                <div><span className="font-semibold text-slate-800">Latency:</span> {seconds(caseItem.latency ?? undefined)}</div>
+                <div><span className="font-semibold text-slate-800">Abstained:</span> {caseItem.abstained ? "yes" : "no"}</div>
+              </div>
+              <div className="mt-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">Answer output</div>
+                <div className="mt-2 rounded-xl bg-slate-50 px-3 py-3 text-sm text-slate-700">{truncate(caseItem.answer_text, 420)}</div>
+              </div>
+              <div className="mt-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">SQL preview</div>
+                <pre className="mt-2 overflow-auto rounded-xl bg-slate-950 p-3 text-xs text-slate-100">
+                  <code>{truncate(caseItem.sql_text, 800)}</code>
+                </pre>
+              </div>
+            </div>
+            <div className={softCard}>
+              <div className="text-sm font-semibold text-slate-800">Assertions</div>
+              <div className="mt-3 space-y-2">
+                {(caseItem.assertions || []).map((assertion) => (
+                  <div key={`${caseItem.case_id}-${assertion.name}`} className="rounded-xl bg-white px-3 py-3 text-sm text-slate-700">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="font-semibold text-slate-800">{assertion.name}</div>
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${assertion.passed ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"}`}>
+                        {assertion.passed ? "pass" : "fail"}
+                      </span>
+                    </div>
+                    <div className="mt-2 text-xs text-slate-500">Expected: {typeof assertion.expected === "string" ? assertion.expected : JSON.stringify(assertion.expected)}</div>
+                    <div className="mt-1 text-xs text-slate-500">Actual: {typeof assertion.actual === "string" ? assertion.actual : JSON.stringify(assertion.actual)}</div>
+                    {assertion.detail && <div className="mt-1 text-xs text-slate-500">{assertion.detail}</div>}
+                  </div>
+                ))}
+                {(caseItem.assertions || []).length === 0 && (
+                  <div className="rounded-xl bg-white px-3 py-3 text-sm text-slate-600">No assertion details captured for this case.</div>
+                )}
+              </div>
+            </div>
+          </div>
+        </details>
+      ))}
+      {(pack.case_details || []).length === 0 && (
+        <div className="rounded-xl bg-white px-3 py-3 text-sm text-slate-600">No case-level benchmark details found for this pack yet.</div>
+      )}
+    </div>
   </section>
 );
 
@@ -331,11 +312,14 @@ export const AiMetricsPage = (): JSX.Element => {
   }, [data]);
 
   const visiblePacks = selectedPack === "all" ? packs : packs.filter((pack) => pack.pack === selectedPack);
-  const latest = data?.latest_interview_metrics;
+  const selectedPackMetrics =
+    selectedPack === "all"
+      ? data?.latest_interview_metrics
+      : packs.find((pack) => pack.pack === selectedPack) || data?.packs?.[selectedPack];
   const selectedHistory = selectedPack === "all" ? undefined : data?.pack_history?.[selectedPack];
 
   if (loading) {
-    return <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 text-sm text-slate-600">Loading AI metrics…</div>;
+    return <div className="rounded-3xl border border-slate-200 bg-white/90 p-6 text-sm text-slate-600">Loading AI metricsâ€¦</div>;
   }
 
   if (error) {
@@ -348,9 +332,9 @@ export const AiMetricsPage = (): JSX.Element => {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="text-xs font-semibold uppercase tracking-[0.22em] text-primary-500">AI Command Center</div>
-            <h1 className="mt-1 text-3xl font-semibold text-slate-800">Metrics, trust, business value, and interview readiness</h1>
+            <h1 className="mt-1 text-3xl font-semibold text-slate-800">Accuracy, latency, and benchmark diagnostics</h1>
             <p className="mt-2 max-w-4xl text-sm leading-relaxed text-slate-600">
-              This page brings together benchmark rankings, trend history, data quality, business KPIs, and the latest interview talking points so you can demo the whole system from one place.
+              This page focuses on benchmark performance only: pack rankings, trend history, failed cases, and per-case outputs so you can inspect behavior without opening raw report files.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -397,17 +381,15 @@ export const AiMetricsPage = (): JSX.Element => {
       </section>
 
       {packs.length > 0 && <PackRanking packs={packs} />}
-      {latest && <LatestRunBoard latest={latest} />}
+      {selectedPackMetrics && <LatestRunBoard latest={selectedPackMetrics} />}
       {selectedHistory && <TrendHistory pack={selectedPack} history={selectedHistory} />}
-      <DataQualityPanel data={data?.data_quality} />
-      <BusinessKpiPanel data={data?.business_kpis} />
 
       {visiblePacks.map((pack) => (
         <section key={`${pack.pack}-${pack.generated_at}`} className={statCard}>
           <SectionTitle
             eyebrow={packTitle(pack.pack)}
             title="Detailed breakdown"
-            detail={`Generated ${new Date(pack.generated_at).toLocaleString()} • model ${pack.model_label || "default"}`}
+            detail={`Generated ${new Date(pack.generated_at).toLocaleString()} â€¢ model ${pack.model_label || "default"}`}
           />
           <div className="mt-5 grid gap-3 md:grid-cols-4">
             <MetricTile label="Overall" value={pct(pack.pipeline_metrics.overall_pass_rate)} />
@@ -432,17 +414,24 @@ export const AiMetricsPage = (): JSX.Element => {
               </div>
             </div>
             <div className={softCard}>
-              <div className="text-sm font-semibold text-slate-800">Interview talking points</div>
+              <div className="text-sm font-semibold text-slate-800">Slowest cases</div>
               <div className="mt-3 space-y-2">
-                {(pack.interview_talking_points || []).map((point) => (
-                  <div key={`${pack.pack}-${point}`} className="rounded-xl bg-white px-3 py-2 text-sm text-slate-700">
-                    {point}
+                {(pack.slowest_cases || []).map((caseItem) => (
+                  <div key={`${pack.pack}-${caseItem.case_id}`} className="rounded-xl bg-white px-3 py-2 text-sm text-slate-700">
+                    {caseItem.case_id} â€¢ {caseItem.category} â€¢ {seconds(caseItem.latency_s)}
                   </div>
                 ))}
+                {(pack.slowest_cases || []).length === 0 && (
+                  <div className="rounded-xl bg-white px-3 py-2 text-sm text-slate-600">No latency outliers recorded for this run.</div>
+                )}
               </div>
             </div>
           </div>
         </section>
+      ))}
+
+      {visiblePacks.map((pack) => (
+        <CaseDetailsPanel key={`${pack.pack}-${pack.generated_at}-cases`} pack={pack} />
       ))}
 
       {packs.length === 0 && (
@@ -453,3 +442,4 @@ export const AiMetricsPage = (): JSX.Element => {
     </div>
   );
 };
+

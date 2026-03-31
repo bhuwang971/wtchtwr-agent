@@ -103,6 +103,13 @@ _SQL_HINTS = (
     "neighborhood",
 )
 _RAG_HINTS = ("review", "feedback", "comments", "guest", "opinion", "mention")
+_PORTFOLIO_OWNERSHIP_HINTS = (
+    "our portfolio",
+    "our listings",
+    "our properties",
+    "highbury portfolio",
+    "highbury listings",
+)
 
 def classify_intent(user_query: str) -> str:
     """Return a coarse routing hint for NL2SQL vs chat handling."""
@@ -179,6 +186,35 @@ def _rag_fallback_answer(rag_snippets: List[Dict[str, Any]], summary: Optional[s
     if len(rag_snippets) > 5:
         lines.append(f"...and {len(rag_snippets) - 5} more snippet(s).")
     return "\n\n".join(lines).strip()
+
+
+def _should_abstain_for_missing_portfolio_evidence(
+    query: str,
+    policy: str,
+    rows: List[Dict[str, Any]],
+    rag_snippets: List[Dict[str, Any]],
+    rag_state: Dict[str, Any],
+) -> bool:
+    """Return True when a hybrid answer lacks support for an explicitly requested owned-portfolio slice."""
+    if str(policy or "").strip().upper() != "SQL_RAG_FUSED":
+        return False
+    lowered = str(query or "").strip().lower()
+    if not any(phrase in lowered for phrase in _PORTFOLIO_OWNERSHIP_HINTS):
+        return False
+    if rows:
+        return False
+    if not rag_snippets:
+        return True
+    return bool((rag_state or {}).get("weak_evidence"))
+
+
+def _portfolio_abstention_answer() -> str:
+    return (
+        "I do not have enough grounded evidence to answer this confidently.\n\n"
+        "Why: the requested Highbury portfolio slice did not return structured results, "
+        "and the supporting review evidence for that owned portfolio slice is weak.\n\n"
+        "Try broadening the geography, asking for a market-only view, or checking a neighborhood where Highbury has active inventory."
+    )
 
 
 def _merge_states(original: GraphState, updated: GraphState) -> GraphState:
@@ -464,7 +500,7 @@ def _compose_legacy(legacy_state: State) -> State:
     """Generate final conversational answer using legacy composer logic."""
     cfg = load_config()
     bundle = legacy_state.get("result_bundle", {})
-    query = legacy_state.get("query", "")
+    query = legacy_state.get("query") or (legacy_state.get("_input", {}) or {}).get("query", "")
     history = legacy_state.get("history", [])
     rag_snippets = bundle.get("rag_snippets", [])
     rag_summary = bundle.get("summary")
@@ -472,6 +508,7 @@ def _compose_legacy(legacy_state: State) -> State:
     rows = bundle.get("rows", [])
     aggregates = bundle.get("aggregates", {})
     policy = bundle.get("policy", legacy_state.get("telemetry", {}).get("policy", ""))
+    rag_state = legacy_state.get("rag", {}) if isinstance(legacy_state.get("rag"), dict) else {}
     filters = bundle.get("filters", {})
     expansion_report = legacy_state.get("expansion_report") or bundle.get("expansion_report")
     expansion_sources = legacy_state.get("expansion_sources") or bundle.get("expansion_sources") or []
@@ -531,6 +568,18 @@ def _compose_legacy(legacy_state: State) -> State:
             if stream_handler:
                 stream_handler(answer_text + "\n")
 
+        if _should_abstain_for_missing_portfolio_evidence(query, policy, rows, rag_snippets, rag_state):
+            _LOGGER.info("[ABSTAIN] Missing grounded portfolio evidence for hybrid answer; returning safe fallback.")
+            answer_text = _portfolio_abstention_answer()
+            usage = {}
+            telemetry = legacy_state.setdefault("telemetry", {})
+            degraded_reasons = telemetry.setdefault("degraded_reasons", [])
+            degraded_reasons.append(
+                "Owned portfolio slice returned no structured support and weak review evidence."
+            )
+            if stream_handler:
+                stream_handler(answer_text + "\n")
+
         if bundle.get("rag_snippets") and answer_text:
             answer_text = normalize_rag_text(answer_text)
 
@@ -556,6 +605,7 @@ def _compose_legacy(legacy_state: State) -> State:
 
         legacy_state["answer_text"] = answer_text
         legacy_state["answer_usage"] = usage
+        legacy_state.setdefault("result_bundle", {})["summary"] = answer_text
         if warning:
             legacy_state["answer_warning"] = warning
 

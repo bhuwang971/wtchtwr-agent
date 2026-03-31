@@ -1,40 +1,54 @@
 {
-  "benchmark_file": "evals\\benchmarks.adversarial.json",
-  "generated_at": "2026-03-25T03:38:36.038535+00:00",
+  "benchmark_file": "C:\\Users\\bhuwa\\wtchtwr\\evals\\benchmarks.adversarial.json",
+  "generated_at": "2026-03-31T17:31:03.375627+00:00",
   "model_label": "default",
   "openai_model": null,
   "openai_fallback_model": null,
   "nl2sql_model": null,
   "nl2sql_fallback_model": null,
   "headline_metrics": {
-    "case_pass_rate": 62.5,
-    "case_passed": 5,
+    "case_pass_rate": 100.0,
+    "case_passed": 8,
     "case_total": 8,
-    "assertion_pass_rate": 85.0,
-    "assertion_passed": 17,
-    "assertion_total": 20
+    "assertion_pass_rate": 100.0,
+    "assertion_passed": 21,
+    "assertion_total": 21
   },
   "performance_metrics": {
-    "avg_latency_s": 13.8475,
-    "p50_latency_s": 4.425,
-    "p95_latency_s": 56.7085,
-    "max_latency_s": 83.69
+    "avg_latency_s": 13.66,
+    "p50_latency_s": 5.12,
+    "p95_latency_s": 50.311,
+    "max_latency_s": 67.44
+  },
+  "cost_metrics": {
+    "prompt_tokens": 0,
+    "completion_tokens": 0,
+    "total_tokens": 0,
+    "cases_with_usage": 0,
+    "estimated_cost_usd": null
   },
   "pipeline_metrics": {
-    "overall_pass_rate": 62.5,
-    "overall_cases_passed": 5,
+    "overall_pass_rate": 100.0,
+    "overall_cases_passed": 8,
     "overall_cases_total": 8,
-    "sql_pass_rate": 50.0,
-    "sql_cases_passed": 1,
+    "sql_pass_rate": 100.0,
+    "sql_cases_passed": 2,
     "sql_cases_total": 2,
     "rag_pass_rate": 100.0,
     "rag_cases_passed": 2,
     "rag_cases_total": 2,
-    "hybrid_pass_rate": 50.0,
-    "hybrid_cases_passed": 1,
+    "hybrid_pass_rate": 100.0,
+    "hybrid_cases_passed": 2,
     "hybrid_cases_total": 2
   },
   "strongest_categories": [
+    {
+      "name": "sql",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
     {
       "name": "rag",
       "total": 2,
@@ -43,6 +57,15 @@
       "pass_rate": 100.0
     },
     {
+      "name": "hybrid",
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
+    }
+  ],
+  "weakest_categories": [
+    {
       "name": "expansion",
       "total": 1,
       "passed": 1,
@@ -50,72 +73,52 @@
       "pass_rate": 100.0
     },
     {
-      "name": "sql",
-      "total": 2,
-      "passed": 1,
-      "failed": 1,
-      "pass_rate": 50.0
-    }
-  ],
-  "weakest_categories": [
-    {
       "name": "triage",
       "total": 1,
-      "passed": 0,
-      "failed": 1,
-      "pass_rate": 0.0
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
     },
     {
       "name": "hybrid",
       "total": 2,
-      "passed": 1,
-      "failed": 1,
-      "pass_rate": 50.0
-    },
-    {
-      "name": "sql",
-      "total": 2,
-      "passed": 1,
-      "failed": 1,
-      "pass_rate": 50.0
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
     }
   ],
-  "failed_case_count": 3,
-  "failed_case_ids": [
-    "adversarial-hybrid-contradictory-brooklyn-midtown",
-    "adversarial-triage-noisy-prompt",
-    "adversarial-sql-compare-implicit-market"
-  ],
+  "failed_case_count": 0,
+  "failed_case_ids": [],
   "slowest_cases": [
     {
       "case_id": "adversarial-expansion-constraint-following",
       "category": "expansion",
-      "latency_s": 83.69,
+      "latency_s": 67.44,
       "policy": "EXPANSION_SCOUT"
     },
     {
       "case_id": "adversarial-triage-noisy-prompt",
       "category": "triage",
-      "latency_s": 6.6,
-      "policy": "SQL_RAG_FUSED"
-    },
-    {
-      "case_id": "adversarial-hybrid-contradictory-brooklyn-midtown",
-      "category": "hybrid",
-      "latency_s": 5.95,
-      "policy": "RAG_HYBRID"
+      "latency_s": 18.5,
+      "policy": "PORTFOLIO_TRIAGE"
     },
     {
       "case_id": "adversarial-sql-vague-top-performers",
       "category": "sql",
-      "latency_s": 4.98,
+      "latency_s": 7.8,
       "policy": "SQL_HIGHBURY"
     },
     {
-      "case_id": "adversarial-sql-compare-implicit-market",
-      "category": "sql",
-      "latency_s": 3.87,
-      "policy": "SQL_HIGHBURY"
+      "case_id": "adversarial-hybrid-contradictory-brooklyn-midtown",
+      "category": "hybrid",
+      "latency_s": 6.15,
+      "policy": "SQL_RAG_FUSED"
+    },
+    {
+      "case_id": "adversarial-hybrid-unsupported-missing-evidence",
+      "category": "hybrid",
+      "latency_s": 4.09,
+      "policy": "SQL_RAG_FUSED"
     }
   ],
   "policy_breakdown": {
@@ -125,11 +128,11 @@
       "failed": 0,
       "pass_rate": 100.0
     },
-    "RAG_HYBRID": {
+    "PORTFOLIO_TRIAGE": {
       "total": 1,
-      "passed": 0,
-      "failed": 1,
-      "pass_rate": 0.0
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
     },
     "RAG_MARKET": {
       "total": 2,
@@ -137,17 +140,23 @@
       "failed": 0,
       "pass_rate": 100.0
     },
-    "SQL_HIGHBURY": {
-      "total": 2,
+    "SQL_COMPARE": {
+      "total": 1,
       "passed": 1,
-      "failed": 1,
-      "pass_rate": 50.0
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "SQL_HIGHBURY": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
     },
     "SQL_RAG_FUSED": {
       "total": 2,
-      "passed": 1,
-      "failed": 1,
-      "pass_rate": 50.0
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
     }
   },
   "intent_breakdown": {
@@ -158,34 +167,47 @@
       "pass_rate": 100.0
     },
     "FACT_SQL": {
-      "total": 2,
+      "total": 1,
       "passed": 1,
-      "failed": 1,
-      "pass_rate": 50.0
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "FACT_SQL_COMPARE": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
+    },
+    "FACT_SQL_RAG_HYBRID": {
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
     },
     "PORTFOLIO_TRIAGE_ADVANCED": {
       "total": 1,
-      "passed": 0,
-      "failed": 1,
-      "pass_rate": 0.0
+      "passed": 1,
+      "failed": 0,
+      "pass_rate": 100.0
     },
     "SENTIMENT_REVIEWS": {
-      "total": 4,
-      "passed": 3,
-      "failed": 1,
-      "pass_rate": 75.0
+      "total": 2,
+      "passed": 2,
+      "failed": 0,
+      "pass_rate": 100.0
     }
   },
   "delta_vs_previous": {
-    "pass_rate_delta": 0.0,
-    "assertion_pass_rate_delta": 0.0,
-    "p50_latency_delta_s": -0.12,
-    "p95_latency_delta_s": 2.4375
+    "pass_rate_delta": 12.5,
+    "assertion_pass_rate_delta": 4.76,
+    "p50_latency_delta_s": -0.425,
+    "p95_latency_delta_s": -21.3465
   },
   "interview_talking_points": [
-    "Overall benchmark pass rate is 62.5% across 8 curated product questions.",
-    "Assertion-level accuracy is 85.0%, which gives a more granular view than whole-case pass/fail.",
-    "Median latency is 4.425s, while p95 latency is 56.7085s, so long-tail cases are visible and measurable.",
-    "SQL flows are the most stable at 50.0% pass rate, while weaker categories identify where the roadmap still is."
+    "Overall benchmark pass rate is 100.0% across 8 curated product questions.",
+    "Assertion-level accuracy is 100.0%, which gives a more granular view than whole-case pass/fail.",
+    "Median latency is 5.12s, while p95 latency is 50.311s, so long-tail cases are visible and measurable.",
+    "SQL flows are the most stable at 100.0% pass rate, while weaker categories identify where the roadmap still is.",
+    "Observed token volume is 0 total tokens across the run; set WTCHTWR_COST_INPUT_PER_1K and WTCHTWR_COST_OUTPUT_PER_1K to turn this into an estimated dollar cost."
   ]
 }

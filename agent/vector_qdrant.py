@@ -25,6 +25,13 @@ _CLIENT: Optional[QdrantClient] = None
 _METADATA: Optional[pd.DataFrame] = None
 _MODEL: Optional[SentenceTransformer] = None
 _TOKEN_RE = re.compile(r"\b[a-zA-Z0-9']+\b")
+_PORTFOLIO_REVIEW_HINTS = (
+    "our portfolio",
+    "our listings",
+    "our properties",
+    "highbury portfolio",
+    "highbury listings",
+)
 
 
 # ---------------------------- Resource loading ----------------------------
@@ -135,6 +142,16 @@ def _safe_float(value: Any) -> Optional[float]:
         return result
     except (TypeError, ValueError):
         return None
+
+
+def _should_prefer_portfolio_reviews(scope: Any, query_text: str, filters: Dict[str, Any]) -> bool:
+    """Use Highbury-only review evidence when hybrid prompts explicitly ask for owned-portfolio support."""
+    if str(scope or "").strip().lower() != "hybrid":
+        return False
+    if filters.get("listing_id") not in (None, "", [], {}, set()):
+        return False
+    lowered = str(query_text or "").strip().lower()
+    return any(phrase in lowered for phrase in _PORTFOLIO_REVIEW_HINTS)
 
 
 def _extract_range_filter(filters: Dict[str, Any], key: str) -> Optional[models.Range]:
@@ -538,6 +555,7 @@ def exec_rag(state: State) -> State:
 
     filters_raw = dict(state.get("filters", {}) or {})
     filters = normalize_filters(filters_raw)
+    query_text = state.get("query", "") or ""
     sentiment_hint = filters_raw.get("sentiment_label")
     if sentiment_hint and not filters.get("sentiment_label"):
         filters["sentiment_label"] = str(sentiment_hint).strip().lower()
@@ -549,11 +567,13 @@ def exec_rag(state: State) -> State:
         filters["is_highbury"] = True
     elif market_only and not has_listing_filter:
         filters["is_highbury"] = False
+    elif _should_prefer_portfolio_reviews(scope, query_text, filters):
+        filters["is_highbury"] = True
+        telemetry["rag_portfolio_hint"] = True
 
     top_k = int(state.get("plan", {}).get("top_k", cfg.top_k_default))
     if top_k < 10:
         top_k = 10
-    query_text = state.get("query", "") or ""
 
     metadata_filters = extract_metadata_filters(query_text, metadata)
     if metadata_filters:

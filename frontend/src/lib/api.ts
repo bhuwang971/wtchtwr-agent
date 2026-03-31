@@ -468,6 +468,32 @@ export interface InterviewMetricsPack {
     cases_with_usage: number;
     estimated_cost_usd?: number | null;
   };
+  case_details?: Array<{
+    case_id: string;
+    query: string;
+    category: string;
+    passed: boolean;
+    tags?: string[];
+    intent?: string | null;
+    scope?: string | null;
+    policy?: string | null;
+    answer_text?: string | null;
+    sql_text?: string | null;
+    row_count?: number | null;
+    rag_count?: number | null;
+    latency?: number | null;
+    abstained?: boolean;
+    manual_checks?: string[];
+    notes?: string | null;
+    error?: string | null;
+    assertions?: Array<{
+      name: string;
+      passed: boolean;
+      expected?: unknown;
+      actual?: unknown;
+      detail?: string | null;
+    }>;
+  }>;
 }
 
 export interface PackHistoryPoint {

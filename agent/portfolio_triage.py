@@ -1922,6 +1922,8 @@ def run_portfolio_triage(state: GraphState) -> GraphState:
     state.result_bundle = state.result_bundle or {}
     state.telemetry = state.telemetry or {}
     state.extras = state.extras or {}
+    state.result_bundle["policy"] = "PORTFOLIO_TRIAGE"
+    state.telemetry["policy"] = "PORTFOLIO_TRIAGE"
 
     kpi_info = _resolve_kpi_choice(state)
     table = _resolve_table(state)

@@ -294,6 +294,40 @@ def _latest_benchmark_reports(reports_dir: Path) -> Dict[str, Dict[str, Any]]:
     for pack_name, (_, path) in latest.items():
         report = load_report(path)
         summary = build_interview_summary(report)
+        case_details: List[Dict[str, Any]] = []
+        for result in report.results:
+            compact = result.result or {}
+            case_details.append(
+                {
+                    "case_id": result.case_id,
+                    "query": result.query,
+                    "category": result.category,
+                    "passed": result.passed,
+                    "tags": result.tags,
+                    "intent": compact.get("intent"),
+                    "scope": compact.get("scope"),
+                    "policy": compact.get("policy"),
+                    "answer_text": compact.get("answer_text"),
+                    "sql_text": compact.get("sql_text"),
+                    "row_count": compact.get("row_count"),
+                    "rag_count": compact.get("rag_count"),
+                    "latency": compact.get("latency"),
+                    "abstained": compact.get("abstained"),
+                    "manual_checks": compact.get("manual_checks") or [],
+                    "notes": compact.get("notes"),
+                    "error": result.error,
+                    "assertions": [
+                        {
+                            "name": assertion.name,
+                            "passed": assertion.passed,
+                            "expected": assertion.expected,
+                            "actual": assertion.actual,
+                            "detail": assertion.detail,
+                        }
+                        for assertion in result.assertions
+                    ],
+                }
+            )
         payloads[pack_name] = {
             "pack": pack_name,
             "benchmark_report": path.name,
@@ -312,6 +346,7 @@ def _latest_benchmark_reports(reports_dir: Path) -> Dict[str, Dict[str, Any]]:
             "intent_breakdown": summary["intent_breakdown"],
             "delta_vs_previous": summary["delta_vs_previous"],
             "interview_talking_points": summary["interview_talking_points"],
+            "case_details": case_details,
         }
     return payloads
 

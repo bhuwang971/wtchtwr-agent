@@ -155,6 +155,10 @@ _BOROUGH_MAP = {
     "sunnyside": "Queens",
     "flushing": "Queens",
     "lic": "Queens",
+    "bronx": "Bronx",
+    "staten island": "Staten Island",
+    "staten": "Staten Island",
+    "si": "Staten Island",
 }
 
 _NEIGHBOURHOOD_TOKENS = {
@@ -170,7 +174,7 @@ _NEIGHBOURHOOD_TOKENS = {
 
 _SQL_KEYWORDS = {
     "percentage", "total", "revenue", "price", "benchmark", "adr", "share",
-    "revenues", "prices",
+    "revenues", "prices", "pricing",
     "average", "top", "growth", "count", "occupancy", "median", "trend",
     "distribution", "rate", "change",
 }
@@ -202,6 +206,17 @@ _AMENITY_SQL_TRIGGERS = {
 
 _COMPARISON_KEYWORDS = {
     "compare", "comparison", "versus", "vs", "benchmark", "against", "difference",
+}
+
+_IMPLICIT_COMPARE_PHRASES = {
+    "punching above",
+    "punching below",
+    "around us",
+    "around me",
+    "relative to the neighborhood",
+    "relative to the neighbourhood",
+    "versus the neighborhood",
+    "versus the neighbourhood",
 }
 
 _HYBRID_INTENT_HINTS = {
@@ -463,11 +478,12 @@ def _detect_scope(text: str | None, tenant_hint: str | None) -> str:
     negated_highbury = bool(_NEGATED_HIGHBURY_PATTERN.search(text))
     connector_hybrid = _has_phrase(lower, _SCOPE_HYBRID_TOKENS)
     comparison_hint = bool(tokens & _COMPARISON_KEYWORD_TOKENS) or _has_phrase(text, _COMPARISON_KEYWORD_PHRASES)
+    implicit_compare_hint = _has_phrase(lower, _IMPLICIT_COMPARE_PHRASES)
     cross_scope = "highbury" in lower and "market" in lower
 
     if cross_scope:
         scope = "Hybrid"
-    elif tenant_hint == "both" or (has_highbury and has_market) or connector_hybrid or comparison_hint:
+    elif tenant_hint == "both" or (has_highbury and has_market) or connector_hybrid or comparison_hint or implicit_compare_hint:
         scope = "Hybrid"
     elif tenant_hint == "highbury" or (has_highbury and not has_market):
         scope = "Highbury"
@@ -509,6 +525,7 @@ def _detect_intent(text: str | None) -> str:
     comparison_hits = [p for p in _COMPARISON_TOKENS if p in lowered]
     comparison_hits.extend(list(tokens & _COMPARISON_KEYWORD_TOKENS))
     comparison_hits.extend([kw for kw in _COMPARISON_KEYWORD_PHRASES if kw in lowered])
+    comparison_hits.extend([phrase for phrase in _IMPLICIT_COMPARE_PHRASES if phrase in lowered])
     has_comparison = bool(comparison_hits)
 
     hybrid_hint = _has_phrase(lowered, _HYBRID_INTENT_HINTS)
@@ -566,6 +583,7 @@ def _detect_intent_refined(text: str | None) -> str:
     has_amenity_sql = has_amenity_topic and any(trigger in lowered for trigger in _AMENITY_SQL_TRIGGERS)
     has_amenity_rag = has_amenity_topic and any(phrase in lowered for phrase in _AMENITY_RAG_PHRASES)
     has_comparison = any(keyword in lowered for keyword in _COMPARISON_KEYWORDS)
+    has_implicit_comparison = any(phrase in lowered for phrase in _IMPLICIT_COMPARE_PHRASES)
     has_hybrid_hint = any(hint in lowered for hint in _HYBRID_INTENT_HINTS)
     has_review_terms = any(term in lowered for term in _RAG_KEYWORDS) or _has_phrase(lowered, _RAG_PHRASES)
     has_sql_terms = any(term in lowered for term in _SQL_KEYWORDS)
@@ -576,13 +594,15 @@ def _detect_intent_refined(text: str | None) -> str:
     if has_amenity_rag:
         return "REVIEWS_RAG"
 
-    if (has_review_terms and has_sql_terms) or has_hybrid_hint:
+    if (has_review_terms and (has_sql_terms or has_comparison or has_implicit_comparison)) or (
+        has_hybrid_hint and (has_sql_terms or has_comparison or has_implicit_comparison)
+    ):
         return "FACT_SQL_RAG_HYBRID"
 
-    if has_comparison and not has_review_terms:
+    if (has_comparison or has_implicit_comparison) and not has_review_terms:
         return "FACT_SQL_COMPARE"
 
-    if has_comparison and has_review_terms:
+    if (has_comparison or has_implicit_comparison) and has_review_terms:
         return "FACT_SQL_RAG_HYBRID_COMPARE"
 
     return _detect_intent(text)
@@ -648,7 +668,7 @@ def classify_intent(state: State) -> State:
     sentiment_hint = _detect_sentiment_filter(raw_query)
     if sentiment_hint and not filters.get("sentiment_label"):
         filters["sentiment_label"] = sentiment_hint
-    if sentiment_hint:
+    if sentiment_hint and intent not in {"FACT_SQL_COMPARE", "FACT_SQL_RAG_HYBRID", "FACT_SQL_RAG_HYBRID_COMPARE"}:
         intent = "SENTIMENT_REVIEWS"
 
     borough_matches = [canon for key, canon in _BOROUGH_MAP.items() if key in normalized]

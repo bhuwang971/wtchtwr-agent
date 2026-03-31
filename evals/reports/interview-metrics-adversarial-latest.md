@@ -1,7 +1,7 @@
 # wtchtwr Interview Metrics
 
-- Benchmark file: `evals\benchmarks.adversarial.json`
-- Generated at: `2026-03-25T03:38:36.038535+00:00`
+- Benchmark file: `C:\Users\bhuwa\wtchtwr\evals\benchmarks.adversarial.json`
+- Generated at: `2026-03-31T17:31:03.375627+00:00`
 - Model label: `default`
 - Main model: `env/default`
 - Main fallback: `env/default`
@@ -10,53 +10,61 @@
 
 ## Headline Metrics
 
-- Case pass rate: `62.5%` (5/8)
-- Assertion pass rate: `85.0%` (17/20)
+- Case pass rate: `100.0%` (8/8)
+- Assertion pass rate: `100.0%` (21/21)
 
 ## Performance Metrics
 
-- Average latency: `13.8475s`
-- P50 latency: `4.425s`
-- P95 latency: `56.7085s`
-- Max latency: `83.69s`
+- Average latency: `13.66s`
+- P50 latency: `5.12s`
+- P95 latency: `50.311s`
+- Max latency: `67.44s`
+
+## Cost Metrics
+
+- Prompt tokens: `0`
+- Completion tokens: `0`
+- Total tokens: `0`
+- Estimated cost: `None`
 
 ## Pipeline Breakdown
 
-- Overall pass rate: `62.5%` (5/8)
-- SQL pass rate: `50.0%` (1/2)
+- Overall pass rate: `100.0%` (8/8)
+- SQL pass rate: `100.0%` (2/2)
 - RAG pass rate: `100.0%` (2/2)
-- Hybrid pass rate: `50.0%` (1/2)
+- Hybrid pass rate: `100.0%` (2/2)
 
 ## Strongest Categories
 
+- `sql`: `100.0%` (2/2)
 - `rag`: `100.0%` (2/2)
-- `expansion`: `100.0%` (1/1)
-- `sql`: `50.0%` (1/2)
+- `hybrid`: `100.0%` (2/2)
 
 ## Weakest Categories
 
-- `triage`: `0.0%` (0/1)
-- `hybrid`: `50.0%` (1/2)
-- `sql`: `50.0%` (1/2)
+- `expansion`: `100.0%` (1/1)
+- `triage`: `100.0%` (1/1)
+- `hybrid`: `100.0%` (2/2)
 
 ## Trend Vs Previous Run
 
-- Case pass rate delta: `0.0 pts`
-- Assertion pass rate delta: `0.0 pts`
-- P50 latency delta: `-0.12s`
-- P95 latency delta: `2.4375s`
+- Case pass rate delta: `12.5 pts`
+- Assertion pass rate delta: `4.76 pts`
+- P50 latency delta: `-0.425s`
+- P95 latency delta: `-21.3465s`
 
 ## Slowest Cases
 
-- `adversarial-expansion-constraint-following` (expansion, EXPANSION_SCOUT): `83.69s`
-- `adversarial-triage-noisy-prompt` (triage, SQL_RAG_FUSED): `6.6s`
-- `adversarial-hybrid-contradictory-brooklyn-midtown` (hybrid, RAG_HYBRID): `5.95s`
-- `adversarial-sql-vague-top-performers` (sql, SQL_HIGHBURY): `4.98s`
-- `adversarial-sql-compare-implicit-market` (sql, SQL_HIGHBURY): `3.87s`
+- `adversarial-expansion-constraint-following` (expansion, EXPANSION_SCOUT): `67.44s`
+- `adversarial-triage-noisy-prompt` (triage, PORTFOLIO_TRIAGE): `18.5s`
+- `adversarial-sql-vague-top-performers` (sql, SQL_HIGHBURY): `7.8s`
+- `adversarial-hybrid-contradictory-brooklyn-midtown` (hybrid, SQL_RAG_FUSED): `6.15s`
+- `adversarial-hybrid-unsupported-missing-evidence` (hybrid, SQL_RAG_FUSED): `4.09s`
 
 ## Interview Talking Points
 
-- Overall benchmark pass rate is 62.5% across 8 curated product questions.
-- Assertion-level accuracy is 85.0%, which gives a more granular view than whole-case pass/fail.
-- Median latency is 4.425s, while p95 latency is 56.7085s, so long-tail cases are visible and measurable.
-- SQL flows are the most stable at 50.0% pass rate, while weaker categories identify where the roadmap still is.
+- Overall benchmark pass rate is 100.0% across 8 curated product questions.
+- Assertion-level accuracy is 100.0%, which gives a more granular view than whole-case pass/fail.
+- Median latency is 5.12s, while p95 latency is 50.311s, so long-tail cases are visible and measurable.
+- SQL flows are the most stable at 100.0% pass rate, while weaker categories identify where the roadmap still is.
+- Observed token volume is 0 total tokens across the run; set WTCHTWR_COST_INPUT_PER_1K and WTCHTWR_COST_OUTPUT_PER_1K to turn this into an estimated dollar cost.

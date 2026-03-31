@@ -1,0 +1,654 @@
+{
+  "benchmark_file": "C:\\Users\\bhuwa\\wtchtwr\\evals\\benchmarks.adversarial.json",
+  "generated_at": "2026-03-31T17:26:58.817934+00:00",
+  "model_label": "default",
+  "openai_model": null,
+  "openai_fallback_model": null,
+  "nl2sql_model": null,
+  "nl2sql_fallback_model": null,
+  "total_cases": 8,
+  "passed_cases": 7,
+  "failed_cases": 1,
+  "pass_rate": 87.5,
+  "summary": {
+    "assertion_total": 21,
+    "assertion_passed": 20,
+    "assertion_failed": 1,
+    "assertion_pass_rate": 95.24,
+    "category_breakdown": {
+      "expansion": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "hybrid": {
+        "total": 2,
+        "passed": 1,
+        "failed": 1,
+        "pass_rate": 50.0
+      },
+      "rag": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "sql": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "triage": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      }
+    },
+    "intent_breakdown": {
+      "EXPANSION_SCOUT": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "FACT_SQL": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "FACT_SQL_COMPARE": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "FACT_SQL_RAG_HYBRID": {
+        "total": 2,
+        "passed": 1,
+        "failed": 1,
+        "pass_rate": 50.0
+      },
+      "PORTFOLIO_TRIAGE_ADVANCED": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "SENTIMENT_REVIEWS": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      }
+    },
+    "policy_breakdown": {
+      "EXPANSION_SCOUT": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "PORTFOLIO_TRIAGE": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "RAG_MARKET": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "SQL_COMPARE": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "SQL_HIGHBURY": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "SQL_RAG_FUSED": {
+        "total": 2,
+        "passed": 1,
+        "failed": 1,
+        "pass_rate": 50.0
+      }
+    },
+    "latency": {
+      "count": 8,
+      "avg_s": 17.7712,
+      "p50_s": 5.545,
+      "p95_s": 71.6575,
+      "max_s": 100.27
+    },
+    "sql_cases": 2,
+    "sql_cases_passed": 2,
+    "rag_cases": 2,
+    "rag_cases_passed": 2,
+    "hybrid_cases": 2,
+    "hybrid_cases_passed": 1
+  },
+  "results": [
+    {
+      "case_id": "adversarial-hybrid-contradictory-brooklyn-midtown",
+      "query": "Compare our Midtown pricing versus the market, but keep the guest complaints focused on Brooklyn only.",
+      "category": "hybrid",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "hybrid",
+        "contradictory-filters"
+      ],
+      "assertions": [
+        {
+          "name": "scope",
+          "passed": true,
+          "expected": "Hybrid",
+          "actual": "Hybrid",
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": null
+        },
+        {
+          "name": "min_rag_snippets",
+          "passed": true,
+          "expected": 1,
+          "actual": 10,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "FACT_SQL_RAG_HYBRID",
+        "scope": "Hybrid",
+        "policy": "SQL_RAG_FUSED",
+        "filters": {
+          "borough": [
+            "Manhattan",
+            "Brooklyn"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": false,
+          "sentiment_label": "negative",
+          "neighbourhood_hint": [
+            "midtown"
+          ]
+        },
+        "sql_text": "SELECT \n    ROUND(AVG(h.price_in_usd), 2) AS highbury_avg_price,\n    ROUND(AVG(m.price_in_usd), 2) AS market_avg_price\nFROM \n    highbury_listings h\nJOIN \n    listings_cleaned m ON h.listings_id = m.listings_id\nWHERE \n    lower(h.neighbourhood) LIKE '%midtown%' \n    AND lower(m.neighbourhood_group) = 'brooklyn'\n    AND m.review_scores_rating < 5;",
+        "answer_text": "Top 1 market avg price by highbury avg price: nan ($nan)\n\nComparison results based on only\n\nHere are the requested results.\n\nReview insights: Top review evidence from Manhattan (MAR 2025).",
+        "row_count": 1,
+        "rag_count": 10,
+        "latency": 6.74,
+        "abstained": false,
+        "manual_checks": [
+          "Confirm SQL stays on Midtown while retrieval evidence reflects the stated Brooklyn complaint constraint.",
+          "If the system cannot reconcile both clauses cleanly, it should surface partial confidence instead of bluffing."
+        ],
+        "notes": "Designed to test whether the agent exposes ambiguity rather than silently collapsing filters."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-rag-indirect-cleanliness",
+      "query": "What do reviews imply about hygiene issues without literally saying cleanliness?",
+      "category": "rag",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "rag",
+        "indirect-wording",
+        "cleanliness"
+      ],
+      "assertions": [
+        {
+          "name": "intent",
+          "passed": true,
+          "expected": "SENTIMENT_REVIEWS",
+          "actual": "SENTIMENT_REVIEWS",
+          "detail": null
+        },
+        {
+          "name": "min_rag_snippets",
+          "passed": true,
+          "expected": 1,
+          "actual": 10,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "SENTIMENT_REVIEWS",
+        "scope": "Market",
+        "policy": "RAG_MARKET",
+        "filters": {
+          "borough": [],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": false,
+          "sentiment_label": "negative"
+        },
+        "sql_text": "",
+        "answer_text": "Top review evidence from Bronx (MAR 2023).",
+        "row_count": 0,
+        "rag_count": 10,
+        "latency": 0.87,
+        "abstained": false,
+        "manual_checks": [
+          "Retrieved snippets should actually mention dirty, unclean, or equivalent hygiene complaints."
+        ],
+        "notes": "Tests indirect review phrasing and semantic retrieval."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-sql-vague-top-performers",
+      "query": "Which of our listings are quietly doing the heavy lifting on revenue?",
+      "category": "sql",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "sql",
+        "vague-business-language"
+      ],
+      "assertions": [
+        {
+          "name": "filters_subset",
+          "passed": true,
+          "expected": {
+            "is_highbury": true
+          },
+          "actual": {
+            "borough": [],
+            "neighbourhood": [],
+            "month": [],
+            "year": [],
+            "listing_id": null,
+            "is_highbury": true,
+            "sentiment_label": null
+          },
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": null
+        },
+        {
+          "name": "min_rows",
+          "passed": true,
+          "expected": 1,
+          "actual": 3,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "FACT_SQL",
+        "scope": "Highbury",
+        "policy": "SQL_HIGHBURY",
+        "filters": {
+          "borough": [],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": true,
+          "sentiment_label": null
+        },
+        "sql_text": "SELECT host_id, host_name, neighbourhood, ROUND(SUM(estimated_revenue_30), 2) AS total_revenue_30, ROUND(SUM(estimated_revenue_60), 2) AS total_revenue_60, ROUND(SUM(estimated_revenue_90), 2) AS total_revenue_90, ROUND(SUM(estimated_revenue_365), 2) AS total_revenue_365\nFROM highbury_listings\nGROUP BY host_id, host_name, neighbourhood\nORDER BY total_revenue_30 DESC;",
+        "answer_text": null,
+        "row_count": 3,
+        "rag_count": 0,
+        "latency": 2.84,
+        "abstained": false,
+        "manual_checks": [
+          "Check whether the system interprets 'heavy lifting on revenue' as a revenue-ranked listing query."
+        ],
+        "notes": "Business-language paraphrase for a revenue leaderboard question."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-hybrid-unsupported-missing-evidence",
+      "query": "Show me Staten Island revenue vs market and back it up with guest complaints for our portfolio there.",
+      "category": "hybrid",
+      "passed": false,
+      "tags": [
+        "adversarial",
+        "hybrid",
+        "unsupported",
+        "abstention"
+      ],
+      "assertions": [
+        {
+          "name": "scope",
+          "passed": true,
+          "expected": "Hybrid",
+          "actual": "Hybrid",
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": null
+        },
+        {
+          "name": "require_abstain",
+          "passed": false,
+          "expected": true,
+          "actual": false,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "FACT_SQL_RAG_HYBRID",
+        "scope": "Hybrid",
+        "policy": "SQL_RAG_FUSED",
+        "filters": {
+          "borough": [
+            "Staten Island"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": false,
+          "sentiment_label": "negative"
+        },
+        "sql_text": "SELECT \n    'Highbury' AS portfolio,\n    ROUND(SUM(h.estimated_revenue_30), 2) AS highbury_revenue_30,\n    ROUND(SUM(h.estimated_revenue_30) / NULLIF(SUM(l.estimated_revenue_30), 0), 2) AS highbury_revenue_percentage_of_market_30,\n    ROUND(SUM(h.estimated_revenue_60), 2) AS highbury_revenue_60,\n    ROUND(SUM(h.estimated_revenue_60) / NULLIF(SUM(l.estimated_revenue_60), 0), 2) AS highbury_revenue_percentage_of_market_60,\n    ROUND(SUM(h.estimated_revenue_90), 2) AS highbury_revenue_90,\n    ROUND(SUM(h.estimated_revenue_90) / NULLIF(SUM(l.estimated_revenue_90), 0), 2) AS highbury_revenue_percentage_of_market_90,\n    ROUND(SUM(h.estimated_revenue_365), 2) AS highbury_revenue_365,\n    ROUND(SUM(h.estimated_revenue_365) / NULLIF(SUM(l.estimated_revenue_365), 0), 2) AS highbury_revenue_percentage_of_market_365,\n    COUNT(a.amenity_canonical) AS guest_complaints\nFROM \n    highbury_listings h\nJOIN \n    listings_cleaned l ON h.listings_id = l.listings_id\nLEFT JOIN \n    amenities_norm a ON h.listings_id = a.listing_id\nWHERE \n    lower(l.neighbourhood_group) = 'staten island' \n    AND lower(a.amenity_canonical) LIKE '%complaint%'\nGROUP BY \n    portfolio;",
+        "answer_text": "Revenue overview\n\nNo records found for this query.\n\nReview insights: No relevant reviews found for the current filters.",
+        "row_count": 0,
+        "rag_count": 0,
+        "latency": 7.77,
+        "abstained": false,
+        "manual_checks": [
+          "If the portfolio has sparse or no Staten Island evidence, the answer should degrade gracefully and say evidence is weak."
+        ],
+        "notes": "Tests abstention and degraded-mode behavior when the requested slice may be sparse."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-triage-noisy-prompt",
+      "query": "Give me the 'what is going wrong and what should I fix first' view for Highbury in Manhattan.",
+      "category": "triage",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "triage",
+        "noisy-phrasing"
+      ],
+      "assertions": [
+        {
+          "name": "intent",
+          "passed": true,
+          "expected": "PORTFOLIO_TRIAGE_ADVANCED",
+          "actual": "PORTFOLIO_TRIAGE_ADVANCED",
+          "detail": null
+        },
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "PORTFOLIO_TRIAGE",
+          "actual": "PORTFOLIO_TRIAGE",
+          "detail": null
+        },
+        {
+          "name": "filters_subset",
+          "passed": true,
+          "expected": {
+            "borough": [
+              "Manhattan"
+            ],
+            "is_highbury": true
+          },
+          "actual": {
+            "borough": [
+              "Manhattan"
+            ],
+            "neighbourhood": [],
+            "month": [],
+            "year": [],
+            "listing_id": null,
+            "is_highbury": true,
+            "sentiment_label": null
+          },
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "PORTFOLIO_TRIAGE_ADVANCED",
+        "scope": "Highbury",
+        "policy": "PORTFOLIO_TRIAGE",
+        "filters": {
+          "borough": [
+            "Manhattan"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": true,
+          "sentiment_label": null
+        },
+        "sql_text": "",
+        "answer_text": "Ranked the Highbury / Manhattan portfolio by 90-day occupancy: 5 upside winners identified and 5 watchlist listings need action.",
+        "row_count": 0,
+        "rag_count": 18,
+        "latency": 18.52,
+        "abstained": false,
+        "manual_checks": [
+          "The triage should stay Manhattan-only and prioritize operational fixes rather than generic commentary."
+        ],
+        "notes": "Tests role intent from plain business phrasing rather than explicit 'triage' wording."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-expansion-constraint-following",
+      "query": "Recommend where Highbury should expand next, but do not use Manhattan and do not drift outside New York City.",
+      "category": "expansion",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "expansion",
+        "constraints"
+      ],
+      "assertions": [
+        {
+          "name": "intent",
+          "passed": true,
+          "expected": "EXPANSION_SCOUT",
+          "actual": "EXPANSION_SCOUT",
+          "detail": null
+        },
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "EXPANSION_SCOUT",
+          "actual": "EXPANSION_SCOUT",
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "EXPANSION_SCOUT",
+        "scope": "Highbury",
+        "policy": "EXPANSION_SCOUT",
+        "filters": {
+          "borough": [],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": null
+        },
+        "sql_text": "",
+        "answer_text": "# 1. Summary Recommendation\n\nPrioritize a **measured expansion into Queens and Brooklyn**, focusing on **transit\u2011rich, development\u2011active areas** that can serve business travelers, couples, and longer\u2011stay tourists.  \nGiven **citywide tightening of short\u2011term rental rules (Local Law 18)** and **Brooklyn\u2011specific planning activity**, Highbury should:\n\n- Target **medium\u2011 to long\u2011stay inventory** (30+ days) near **subway and ferry nodes**.\n- Lean into **neighborhoods with active or planned rezonings / comprehensive plans**, which signal long\u2011term investment and rising demand.\n- Avoid Manhattan entirely to reduce overexposure and regulatory concentration.\n\n---\n\n# 2. Ranked Neighborhood Recommendations\n\n**1) Forest Hills (Queens)**  \nBest fit for: longer\u2011stay tourists, couples, business travelers needing Midtown access.  \nWhy (from signals):\n- The Forest Hills guide notes the area\u2019s **planned development history**: Cord Meyer Development\u2019s purchase of **660 acres** and major growth in the **1920s\u201330s with the widening of Queens Boulevard and opening of the Queens Boulevard subway line**.  \n- This underscores **strong transit orientation and established growth**, aligning with Highbury\u2019s preference for **rising tourism + strong development** near transit.  \nStrategic angle:\n- Position Forest Hills as a **quiet, residential base** with fast subway access for business travelers and longer\u2011stay tourists who want calmer stays than Manhattan but easy connectivity.\n\n**2) Transit\u2011Oriented Brooklyn Nodes (e.g., around major subway & rail hubs)**  \nBest fit for: business travelers and longer\u2011stay tourists who prioritize connectivity.  \nWhy (from signals):\n- The **Transit\u2011Oriented Development** report highlights that NYC\u2019s population grew by **625,000 in the last decade while adding only 206,000 housing units**, and explicitly calls for **targeting transportation hubs** to solve the housing crisis.  \n- This policy direction favors **denser, mixed\u2011use, transit\u2011proximate neighborhoods**, especially in Brooklyn, which aligns with Highbury\u2019s desire for **strong development** and **long\u2011term demand drivers**.  \nStrategic angle:\n- Focus on **medium\u2011term rentals** near major Brooklyn transit hubs (e.g., areas around key subway intersections or LIRR stops) to capture **business and extended\u2011stay demand** without relying on nightly STR.\n\n**3) Brooklyn Neighborhoods Implicated in the 2025 Comprehensive Plan (Brooklyn\u2011wide lens)**  \nBest fit for: diversified portfolio of couple\u2011friendly and longer\u2011stay units.  \nWhy (from signals):\n- The **2025 Comprehensive Plan for Brooklyn** frames a borough\u2011wide vision around **\u201cHousing Growth + Housing Choice\u201d and \u201cJobs, Industry, + Economic Prosperity\u201d**, acknowledging that **Brooklyn has seen strong growth but rising inequity**.  \n- This indicates **ongoing public\u2011sector focus on growth and investment** in Brooklyn\u2019s housing and economic base, which supports sustained tourism and business travel.  \nStrategic angle:\n- Use the plan as a **macro filter**: prioritize sub\u2011markets where the plan emphasizes **housing growth and economic prosperity**, as these will likely see **new product, better public space, and stronger services** that appeal to Highbury\u2019s core segments.\n\n**4) Coastal / Waterfront Brooklyn Areas Under Resilience\u2011Linked Rezoning (e.g., Gerritsen Beach, Sheepshead Bay \u2013 cautiously)**  \nBest fit for: selective, longer\u2011stay leisure and couples inventory.  \nWhy (from signals):\n- Community Board 5 minutes describe a **citywide text amendment** moving through **ULURP in parallel with rezoning of Gerritsen Beach and Sheepshead Bay in Brooklyn**, aimed at **new construction / expansions** to **increase sustainability and resilience in an era of rising seas and stronger hurricanes**.  \n- This signals **active planning and future\u2011oriented investment** in these coastal areas.  \nStrategic angle:\n- Treat these as **long\u2011term bets**: only pursue **high\u2011quality, resilient buildings** and assume **slower, more complex entitlement and community scrutiny**.\n\n**5) Flushing (Queens) \u2013 Only as a Longer\u2011Term, Highly Selective Play**  \nBest fit for: future\u2011oriented, mixed\u2011use positioning; not near\u2011term scale.  \nWhy (from signals):\n- The **Flushing Waterfront Rezoning** would allow **over 1,700 luxury condos and offices**, clearly indicating **large\u2011scale private investment and up\u2011zoning**.  \n- However, the same source stresses that rezoning is being used to **gentrify and displace long\u2011standing communities**, with organized opposition (\u201cProtect Flushing\u201d).  \nStrategic angle:\n- Recognize Flushing as a **major future node** with strong development signals, but proceed only with **community\u2011sensitive, medium\u2011 to long\u2011stay inventory** and expect **political and social friction**.\n\n---\n\n# 3. External Signal Breakdown (Table)\n\n| Signal Cluster | Source (summary) | Extracted Key_Points Used | Implication for Highbury |\n|----------------|------------------|---------------------------|---------------------------|\n| Tourism | Tourism Industry in NYC (April 2021) | 10\u2011year period of **record tourism growth** ending in 2020; visitors fell **67%** in 2020 to **22.3M** from **66.6M** in 2019; tourism almost **tripled since 1991**, with nearly half the growth in the last 10 years; strong growth in **employment and wages** pre\u20112020. | Confirms **structural strength of NYC tourism** despite pandemic shock. Supports investing in **non\u2011Manhattan boroughs** that can capture returning visitors, especially for **longer stays**. |\n| Tourism / Mobility | NYC Ferry expansion | NYCEDC expanding **NYC Ferry** to include service from **Staten Island to Lower Manhattan and West Side**, and from **Coney Island to Lower Manhattan**; new landing in **Throgs Neck (Bronx)**; ridership forecast to reach **11M by 2023**. | Rising ferry ridership and new routes strengthen **waterfront and outer\u2011borough connectivity**, especially **Coney Island / coastal Brooklyn**, supporting **tourism and leisure\u2011oriented stays** there. |\n| Infrastructure / Rezoning | Protect Flushing \u2013 Flushing Waterfront Rezoning | New ULURP in 2019 to **rezone downtown Flushing and the waterfront**, enabling **1,700+ luxury condos and offices**; framed as a strategy used by luxury developers to **gentrify and displace communities**; call for community mobilization against rezoning. | Strong **development signal** (luxury condos/offices) but **high community resistance**. Treat Flushing as **high\u2011potential but politically sensitive**, better suited to **careful, longer\u2011stay** positioning. |\n| Infrastructure / Rezoning | ULURP \u2013 Gerritsen Beach & Sheepshead Bay (Brooklyn) | Citywide text amendment following **ULURP clock** in parallel with **rezoning of Gerritsen Beach and Sheepshead Bay**; guidelines apply to **new construction / expansions**; goal is to **increase sustainability and resilience** at the water\u2019s edge amid **rising seas and stronger hurricanes**. | Indicates **active planning and future investment** in coastal Brooklyn; good long\u2011term signal but with **climate\u2011risk and regulatory complexity**. Suitable for **selective, resilient assets**, not fast scale. |\n| Development / Regulation | Queens County STR Regulation (BNBCalc) | Queens STR rules have become **increasingly strict**; as of **Sept 2023**, hosts on Airbnb/VRBO must comply with **Local Law 18 \u2013 Short\u2011Term Rental Registration Law**. | Confirms **tight STR environment** in Queens; Highbury should emphasize **30+ day stays** and **compliant registration** rather than nightly STR. |\n| Development / Regulation | Kings County (Brooklyn) STR Regulation (BNBCalc) | New rules projected to **remove thousands of Airbnb listings**; STR industry revenue surpassed **$1B**; law projected to **remove thousands of listings from the NYC market**. | In Brooklyn, Local Law 18 is materially shrinking **nightly STR supply**, which can **benefit compliant, medium\u2011/long\u2011stay operators** by reducing competition. |\n| Development / History | Forest Hills STR Guide | Forest Hills named after **Forest Park**; Cord Meyer Development bought **660 acres** in 1906; further development in **1920s\u201330s** with **widening of Queens Boulevard** and opening of the **Queens Boulevard subway line**. | Shows Forest Hills as a **planned, transit\u2011oriented neighborhood** with long\u2011standing infrastructure, ideal for **business and longer\u2011stay tourists** seeking stable, residential environments. |\n| Regulation / Planning | Transit\u2011Oriented Development \u2013 NY Building Congress | NYC and suburbs face dual crises of **housing shortage and affordability**; population up **625,000** in the last decade vs **206,000 units added** (0.5 units per job); calls to **increase housing supply at all income levels**, with emphasis on **targeting transportation hubs**. | Strong policy backing for **denser, transit\u2011oriented growth**, especially around hubs in Brooklyn/Queens. Highbury should cluster inventory near **subway/ferry/rail hubs** to align with this direction. |\n| Regulation / Planning | 2025 Comprehensive Plan for Brooklyn | Plan structure centers on **Health, Wellness + Justice; Housing Growth + Housing Choice; Jobs, Industry + Economic Prosperity; Public Space + Placemaking**; notes that **Brooklyn has grown**, but **inequity is skyrocketing**. | Signals long\u2011term **public investment and planning focus** on Brooklyn\u2019s housing and economic base. Good macro validation for **Brooklyn expansion**, but with sensitivity to **equity and displacement** concerns. |\n\n(Other listed documents either lacked specific, extractable neighborhood\u2011level key_points or were Manhattan\u2011focused and are therefore not used here.)\n\n---\n\n# 4. Recommended Property Types\n\nAligned with signals and regulation:\n\n1. **30+ Day, Furnished Apartments (Primary Focus)**\n   - Rationale: Queens and Brooklyn are under **Local Law 18**, with strict STR enforcement and thousands of nightly listings projected to be removed.\n   - Target: **Business travelers on projects, relocating professionals, extended\u2011stay tourists, couples on longer trips.**\n\n2. **Transit\u2011Proximate 1BR / Large Studio Units**\n   - Rationale: Transit\u2011oriented development push and Forest Hills\u2019 and Brooklyn hubs\u2019 **subway connectivity**.\n   - Target: **Solo business travelers and couples** who value quick access to Manhattan and other boroughs.\n\n3. **Select 2BR Units in Residential Neighborhoods (Forest Hills, stable Brooklyn areas)**\n   - Rationale: Longer\u2011stay tourists and small families seeking **residential feel with strong transit**.\n   - Target: **Longer\u2011stay leisure and work\u2011from\u2011anywhere guests**.\n\n4. **Limited, Resilient Waterfront Inventory (Coney Island / Coastal Brooklyn)**\n   - Rationale: NYC Ferry expansion to **Coney Island** and resilience\u2011focused rezoning in **Gerritsen Beach / Sheepshead Bay**.\n   - Target: **Seasonal and leisure\u2011oriented longer stays**, in **modern, resilient buildings** only.\n\n---\n\n# 5. Risks & Constraints\n\n1. **Regulatory Tightening (Queens & Brooklyn)**\n   - Queens County and Kings County signals show **strict STR rules** and **thousands of listings being removed**.\n   - Constraint: Highbury must **opt out of nightly STR** and design operations around **registered, 30+ day stays**.\n\n2. **Community & Political Pushback**\n   - Flushing rezoning is explicitly tied to **gentrification and displacement concerns**, with organized opposition.\n   - Brooklyn\u2019s comprehensive plan emphasizes **equity and justice**, implying **heightened scrutiny** of new development and operators.\n\n3. **Climate & Resilience Risk**\n   - Rezoning in Gerritsen Beach and Sheepshead Bay is driven by **rising seas and stronger hurricanes**, requiring **resilient construction**.\n   - Constraint: Higher **capex and insurance** for coastal assets; potential **future building code changes**.\n\n4. **Macro Tourism Volatility**\n   - Tourism report shows a **67% drop in visitors in 2020**, underscoring vulnerability to shocks.\n   - Constraint: Highbury should **avoid over\u2011concentration in purely leisure nodes** and maintain a **business / extended\u2011stay mix**.\n\n5. **Housing Affordability & Political Risk**\n   - Transit\u2011oriented development report and Brooklyn plan both highlight **housing shortages and affordability crises**.\n   - Constraint: Risk of **future caps or additional rules** on commercial use of housing near transit; need for **compliance and community\u2011benefit framing**.\n\n---\n\n# 6. Final Operator Takeaway\n\nShift from a Manhattan\u2011heavy, nightly\u2011stay model toward a **borough\u2011diversified, transit\u2011oriented, 30+ day portfolio** centered in:\n\n- **Forest Hills (Queens)** for stable, residential, transit\u2011rich longer stays.\n- **Transit\u2011hub Brooklyn sub\u2011markets** aligned with the **Transit\u2011Oriented Development** agenda and the **Brooklyn 2025 Comprehensive Plan**.\n- **Selective coastal Brooklyn** (including Coney Island\u2011adjacent areas) where ferry expansion and resilience\u2011focused rezoning signal long\u2011term investment.\n\nOperate with **strict Local Law 18 compliance**, emphasize **medium\u2011 to long\u2011stay business and leisure demand**, and approach politically sensitive rezonings (Flushing, coastal Brooklyn) with **caution and community awareness**.\n\n---\n\n# 7. Sources (collapsible)\n\n<details>\n<summary>Click to expand</summary>\n\n- NYCEDC \u2013 NYC Ferry expansion: new routes to Staten Island, Coney Island; forecast **11M riders by 2023**.  \n- NYC Office of the Comptroller \u2013 \u201cThe Tourism Industry in New York City: Reigniting the Return\u201d (April 2021): tourism **tripled since 1991**, **67% drop in 2020**, strong pre\u20112020 employment and wage growth.  \n- Protect Flushing \u2013 Flushing Waterfront Rezoning: ULURP to allow **1,700+ luxury condos and offices**; community concerns over **gentrification and displacement**.  \n- CityLand / Community Board 5 Minutes \u2013 ULURP and rezoning of **Gerritsen Beach and Sheepshead Bay**: resilience\u2011oriented guidelines for **new construction/expansions** in the face of **rising seas and stronger hurricanes**.  \n- BNBCalc \u2013 Queens County STR Regulations: **Local Law 18** in effect as of Sept 2023; increasingly strict STR rules.  \n- BNBCalc \u2013 Kings County (Brooklyn) STR Regulations: new law projected to **remove thousands of Airbnb listings**; NYC STR revenue > **$1B**.  \n- Forest Hills STR Guide: historical development by **Cord Meyer Development (660 acres)**; major growth with **Queens Boulevard widening** and **Queens Boulevard subway line** in 1920s\u201330s.  \n- New York Building Congress \u2013 \u201cTransit\u2011Oriented Development: Targeting Transportation Hubs to Solve New York\u2019s Housing Crisis\u201d: population up **625,000** vs **206,000 units** added; calls for **housing growth at transit hubs**.  \n- \u201cThe 2025 Comprehensive Plan for Brooklyn\u201d: focus on **Housing Growth + Housing Choice**, **Jobs, Industry + Economic Prosperity**, and recognition of **rising inequity** alongside growth.\n\n</details>",
+        "row_count": 0,
+        "rag_count": 0,
+        "latency": 100.27,
+        "abstained": false,
+        "manual_checks": [
+          "Recommendations should honor both constraints: NYC only, Manhattan excluded."
+        ],
+        "notes": "Constraint-following case for external-source planning."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-rag-negative-vs-positive-conflict",
+      "query": "Guests seem split on Brooklyn. What are the strongest complaints, not the praise?",
+      "category": "rag",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "rag",
+        "conflicting-sentiment"
+      ],
+      "assertions": [
+        {
+          "name": "filters_subset",
+          "passed": true,
+          "expected": {
+            "borough": [
+              "Brooklyn"
+            ],
+            "sentiment_label": "negative"
+          },
+          "actual": {
+            "borough": [
+              "Brooklyn"
+            ],
+            "neighbourhood": [],
+            "month": [],
+            "year": [],
+            "listing_id": null,
+            "is_highbury": false,
+            "sentiment_label": "negative"
+          },
+          "detail": null
+        },
+        {
+          "name": "min_rag_snippets",
+          "passed": true,
+          "expected": 1,
+          "actual": 10,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "SENTIMENT_REVIEWS",
+        "scope": "Market",
+        "policy": "RAG_MARKET",
+        "filters": {
+          "borough": [
+            "Brooklyn"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": false,
+          "sentiment_label": "negative"
+        },
+        "sql_text": "",
+        "answer_text": "Top review evidence from Brooklyn (APR 2022).",
+        "row_count": 0,
+        "rag_count": 10,
+        "latency": 0.81,
+        "abstained": false,
+        "manual_checks": [
+          "The answer should bias toward negative evidence and avoid mixing in positive snippets unless it labels them explicitly."
+        ],
+        "notes": "Tests conflict resolution when the user explicitly prioritizes the complaint side."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-sql-compare-implicit-market",
+      "query": "Are our Upper West Side prices punching above the neighborhood around us?",
+      "category": "sql",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "sql",
+        "compare",
+        "implicit-market"
+      ],
+      "assertions": [
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "SQL_COMPARE",
+          "actual": "SQL_COMPARE",
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": null
+        },
+        {
+          "name": "min_rows",
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "FACT_SQL_COMPARE",
+        "scope": "Hybrid",
+        "policy": "SQL_COMPARE",
+        "filters": {
+          "borough": [
+            "Manhattan",
+            "Staten Island"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": false,
+          "neighbourhood_hint": [
+            "upper west"
+          ],
+          "sentiment_label": null
+        },
+        "sql_text": "SELECT \n    ROUND(AVG(lc.price_in_usd), 2) AS average_price_upper_west_side,\n    ROUND(AVG(lc_around.price_in_usd), 2) AS average_price_around\nFROM \n    listings_cleaned lc\nLEFT JOIN \n    listings_cleaned lc_around ON lower(lc_around.neighbourhood) LIKE '%upper west%'\nWHERE \n    lower(lc.neighbourhood_group) = 'manhattan' \n    AND lc.neighbourhood = 'Upper West Side';",
+        "answer_text": null,
+        "row_count": 1,
+        "rag_count": 0,
+        "latency": 4.35,
+        "abstained": false,
+        "manual_checks": [
+          "Check whether the system correctly interprets the neighborhood benchmark as a Highbury vs market comparison."
+        ],
+        "notes": "Tests implicit comparison language without explicit 'compare' wording."
+      },
+      "error": null
+    }
+  ]
+}

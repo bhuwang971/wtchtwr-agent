@@ -231,7 +231,13 @@ def _latency_value(result: Dict[str, Any]) -> float:
 
 
 def _did_abstain(result: Dict[str, Any]) -> bool:
-    answer_text = _normalize_text(result.get("answer_text"))
+    if bool(result.get("abstained")):
+        return True
+    answer_text = _normalize_text(
+        result.get("answer_text")
+        or result.get("content")
+        or (result.get("result_bundle") or {}).get("summary")
+    )
     abstention_markers = [
         "not enough grounded evidence",
         "insufficient evidence",
@@ -464,7 +470,7 @@ def evaluate_case(case: Dict[str, Any], *, model_config: Optional[ModelConfig] =
         "policy": (result.get("result_bundle") or {}).get("policy") or result.get("policy"),
         "filters": result.get("filters"),
         "sql_text": ((result.get("sql") or {}).get("text") or result.get("sql_text") or (result.get("result_bundle") or {}).get("sql")),
-        "answer_text": result.get("answer_text"),
+        "answer_text": result.get("answer_text") or result.get("content") or (result.get("result_bundle") or {}).get("summary"),
         "row_count": _row_count(result),
         "rag_count": _rag_count(result),
         "latency": result.get("latency"),

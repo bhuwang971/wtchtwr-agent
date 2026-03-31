@@ -249,14 +249,15 @@ def plan_steps(state: State) -> State:
     else:
         mode = "sql"
 
-    if mode == "sql" and rag_soft_cues and not has_sql_tokens:
-        mode = "rag"
-    if mixed_cues or hybrid_connector_hit or rag_numeric_override:
-        mode = "hybrid"
-    if force_hybrid:
-        mode = "hybrid"
-    elif force_rag:
-        mode = "rag"
+    if not triage_mode:
+        if mode == "sql" and rag_soft_cues and not has_sql_tokens:
+            mode = "rag"
+        if mixed_cues or hybrid_connector_hit or rag_numeric_override:
+            mode = "hybrid"
+        if force_hybrid:
+            mode = "hybrid"
+        elif force_rag:
+            mode = "rag"
 
     # -----------------------------------------------------------------------
     # SQL Table decision

@@ -1,0 +1,651 @@
+{
+  "benchmark_file": "C:\\Users\\bhuwa\\wtchtwr\\evals\\benchmarks.adversarial.json",
+  "generated_at": "2026-03-31T17:13:56.207005+00:00",
+  "model_label": "default",
+  "openai_model": null,
+  "openai_fallback_model": null,
+  "nl2sql_model": null,
+  "nl2sql_fallback_model": null,
+  "total_cases": 8,
+  "passed_cases": 7,
+  "failed_cases": 1,
+  "pass_rate": 87.5,
+  "summary": {
+    "assertion_total": 21,
+    "assertion_passed": 20,
+    "assertion_failed": 1,
+    "assertion_pass_rate": 95.24,
+    "category_breakdown": {
+      "expansion": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "hybrid": {
+        "total": 2,
+        "passed": 1,
+        "failed": 1,
+        "pass_rate": 50.0
+      },
+      "rag": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "sql": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "triage": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      }
+    },
+    "intent_breakdown": {
+      "EXPANSION_SCOUT": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "FACT_SQL": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "FACT_SQL_COMPARE": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "FACT_SQL_RAG_HYBRID": {
+        "total": 2,
+        "passed": 1,
+        "failed": 1,
+        "pass_rate": 50.0
+      },
+      "PORTFOLIO_TRIAGE_ADVANCED": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "SENTIMENT_REVIEWS": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      }
+    },
+    "policy_breakdown": {
+      "EXPANSION_SCOUT": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "PORTFOLIO_TRIAGE": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "RAG_MARKET": {
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "SQL_COMPARE": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "SQL_HIGHBURY": {
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "pass_rate": 100.0
+      },
+      "SQL_RAG_FUSED": {
+        "total": 2,
+        "passed": 1,
+        "failed": 1,
+        "pass_rate": 50.0
+      }
+    },
+    "latency": {
+      "count": 8,
+      "avg_s": 21.3287,
+      "p50_s": 3.65,
+      "p95_s": 93.367,
+      "max_s": 133.4
+    },
+    "sql_cases": 2,
+    "sql_cases_passed": 2,
+    "rag_cases": 2,
+    "rag_cases_passed": 2,
+    "hybrid_cases": 2,
+    "hybrid_cases_passed": 1
+  },
+  "results": [
+    {
+      "case_id": "adversarial-hybrid-contradictory-brooklyn-midtown",
+      "query": "Compare our Midtown pricing versus the market, but keep the guest complaints focused on Brooklyn only.",
+      "category": "hybrid",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "hybrid",
+        "contradictory-filters"
+      ],
+      "assertions": [
+        {
+          "name": "scope",
+          "passed": true,
+          "expected": "Hybrid",
+          "actual": "Hybrid",
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": null
+        },
+        {
+          "name": "min_rag_snippets",
+          "passed": true,
+          "expected": 1,
+          "actual": 10,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "FACT_SQL_RAG_HYBRID",
+        "scope": "Hybrid",
+        "policy": "SQL_RAG_FUSED",
+        "filters": {
+          "borough": [
+            "Manhattan",
+            "Brooklyn"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": false,
+          "sentiment_label": "negative",
+          "neighbourhood_hint": [
+            "midtown"
+          ]
+        },
+        "sql_text": "SELECT \n    'Highbury' AS source,\n    ROUND(AVG(h.price_in_usd), 2) AS avg_price_highbury,\n    ROUND(AVG(l.price_in_usd), 2) AS avg_price_market\nFROM \n    highbury_listings h\nJOIN \n    listings_cleaned l ON h.listings_id = l.listings_id\nWHERE \n    lower(h.neighbourhood) LIKE '%midtown%' \n    AND lower(l.neighbourhood_group) = 'brooklyn'\nUNION ALL\nSELECT \n    'Market' AS source,\n    ROUND(AVG(h.price_in_usd), 2) AS avg_price_highbury,\n    ROUND(AVG(l.price_in_usd), 2) AS avg_price_market\nFROM \n    highbury_listings h\nJOIN \n    listings_cleaned l ON h.listings_id = l.listings_id\nWHERE \n    lower(h.neighbourhood) LIKE '%midtown%' \n    AND lower(l.neighbourhood_group) = 'brooklyn';",
+        "answer_text": "Top 2 source by avg price highbury: Highbury ($nan), Market ($nan)\n\nComparison results based on only\n\nHere are the requested results.\n\nReview insights: Top review evidence from Manhattan (MAR 2025).",
+        "row_count": 2,
+        "rag_count": 10,
+        "latency": 6.5,
+        "abstained": false,
+        "manual_checks": [
+          "Confirm SQL stays on Midtown while retrieval evidence reflects the stated Brooklyn complaint constraint.",
+          "If the system cannot reconcile both clauses cleanly, it should surface partial confidence instead of bluffing."
+        ],
+        "notes": "Designed to test whether the agent exposes ambiguity rather than silently collapsing filters."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-rag-indirect-cleanliness",
+      "query": "What do reviews imply about hygiene issues without literally saying cleanliness?",
+      "category": "rag",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "rag",
+        "indirect-wording",
+        "cleanliness"
+      ],
+      "assertions": [
+        {
+          "name": "intent",
+          "passed": true,
+          "expected": "SENTIMENT_REVIEWS",
+          "actual": "SENTIMENT_REVIEWS",
+          "detail": null
+        },
+        {
+          "name": "min_rag_snippets",
+          "passed": true,
+          "expected": 1,
+          "actual": 10,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "SENTIMENT_REVIEWS",
+        "scope": "Market",
+        "policy": "RAG_MARKET",
+        "filters": {
+          "borough": [],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": false,
+          "sentiment_label": "negative"
+        },
+        "sql_text": "",
+        "answer_text": "Top review evidence from Bronx (MAR 2023).",
+        "row_count": 0,
+        "rag_count": 10,
+        "latency": 0.92,
+        "abstained": false,
+        "manual_checks": [
+          "Retrieved snippets should actually mention dirty, unclean, or equivalent hygiene complaints."
+        ],
+        "notes": "Tests indirect review phrasing and semantic retrieval."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-sql-vague-top-performers",
+      "query": "Which of our listings are quietly doing the heavy lifting on revenue?",
+      "category": "sql",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "sql",
+        "vague-business-language"
+      ],
+      "assertions": [
+        {
+          "name": "filters_subset",
+          "passed": true,
+          "expected": {
+            "is_highbury": true
+          },
+          "actual": {
+            "borough": [],
+            "neighbourhood": [],
+            "month": [],
+            "year": [],
+            "listing_id": null,
+            "is_highbury": true,
+            "sentiment_label": null
+          },
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": null
+        },
+        {
+          "name": "min_rows",
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "FACT_SQL",
+        "scope": "Highbury",
+        "policy": "SQL_HIGHBURY",
+        "filters": {
+          "borough": [],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": true,
+          "sentiment_label": null
+        },
+        "sql_text": "SELECT host_name, SUM(estimated_revenue_30) AS total_revenue_30, SUM(estimated_revenue_60) AS total_revenue_60, SUM(estimated_revenue_90) AS total_revenue_90, SUM(estimated_revenue_365) AS total_revenue_365\nFROM highbury_listings\nGROUP BY host_name\nORDER BY total_revenue_30 DESC;",
+        "answer_text": null,
+        "row_count": 1,
+        "rag_count": 0,
+        "latency": 2.74,
+        "abstained": false,
+        "manual_checks": [
+          "Check whether the system interprets 'heavy lifting on revenue' as a revenue-ranked listing query."
+        ],
+        "notes": "Business-language paraphrase for a revenue leaderboard question."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-hybrid-unsupported-missing-evidence",
+      "query": "Show me Staten Island revenue vs market and back it up with guest complaints for our portfolio there.",
+      "category": "hybrid",
+      "passed": false,
+      "tags": [
+        "adversarial",
+        "hybrid",
+        "unsupported",
+        "abstention"
+      ],
+      "assertions": [
+        {
+          "name": "scope",
+          "passed": true,
+          "expected": "Hybrid",
+          "actual": "Hybrid",
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": null
+        },
+        {
+          "name": "require_abstain",
+          "passed": false,
+          "expected": true,
+          "actual": false,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "FACT_SQL_RAG_HYBRID",
+        "scope": "Hybrid",
+        "policy": "SQL_RAG_FUSED",
+        "filters": {
+          "borough": [],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": false,
+          "sentiment_label": "negative"
+        },
+        "sql_text": "SELECT \n    ROUND(SUM(h.estimated_revenue_30), 2) AS highbury_revenue_30,\n    ROUND(SUM(l.estimated_revenue_30), 2) AS market_revenue_30,\n    COUNT(c.listing_id) AS guest_complaints\nFROM \n    highbury_listings h\nJOIN \n    listings_cleaned l ON h.listings_id = l.listings_id\nLEFT JOIN \n    (SELECT listing_id FROM amenities_norm WHERE lower(amenity_canonical) LIKE '%complaint%') c ON h.listings_id = c.listing_id\nWHERE \n    lower(h.neighbourhood_group) = 'staten island'\nGROUP BY \n    h.neighbourhood_group;",
+        "answer_text": "Revenue overview\n\nNo records found for this query.\n\nReview insights: Top review evidence from Staten Island (AUG 2023).",
+        "row_count": 0,
+        "rag_count": 10,
+        "latency": 3.8,
+        "abstained": false,
+        "manual_checks": [
+          "If the portfolio has sparse or no Staten Island evidence, the answer should degrade gracefully and say evidence is weak."
+        ],
+        "notes": "Tests abstention and degraded-mode behavior when the requested slice may be sparse."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-triage-noisy-prompt",
+      "query": "Give me the 'what is going wrong and what should I fix first' view for Highbury in Manhattan.",
+      "category": "triage",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "triage",
+        "noisy-phrasing"
+      ],
+      "assertions": [
+        {
+          "name": "intent",
+          "passed": true,
+          "expected": "PORTFOLIO_TRIAGE_ADVANCED",
+          "actual": "PORTFOLIO_TRIAGE_ADVANCED",
+          "detail": null
+        },
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "PORTFOLIO_TRIAGE",
+          "actual": "PORTFOLIO_TRIAGE",
+          "detail": null
+        },
+        {
+          "name": "filters_subset",
+          "passed": true,
+          "expected": {
+            "borough": [
+              "Manhattan"
+            ],
+            "is_highbury": true
+          },
+          "actual": {
+            "borough": [
+              "Manhattan"
+            ],
+            "neighbourhood": [],
+            "month": [],
+            "year": [],
+            "listing_id": null,
+            "is_highbury": true,
+            "sentiment_label": null
+          },
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "PORTFOLIO_TRIAGE_ADVANCED",
+        "scope": "Highbury",
+        "policy": "PORTFOLIO_TRIAGE",
+        "filters": {
+          "borough": [
+            "Manhattan"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": true,
+          "sentiment_label": null
+        },
+        "sql_text": "",
+        "answer_text": "Ranked the Highbury / Manhattan portfolio by 90-day occupancy: 5 upside winners identified and 5 watchlist listings need action.",
+        "row_count": 0,
+        "rag_count": 18,
+        "latency": 19.02,
+        "abstained": false,
+        "manual_checks": [
+          "The triage should stay Manhattan-only and prioritize operational fixes rather than generic commentary."
+        ],
+        "notes": "Tests role intent from plain business phrasing rather than explicit 'triage' wording."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-expansion-constraint-following",
+      "query": "Recommend where Highbury should expand next, but do not use Manhattan and do not drift outside New York City.",
+      "category": "expansion",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "expansion",
+        "constraints"
+      ],
+      "assertions": [
+        {
+          "name": "intent",
+          "passed": true,
+          "expected": "EXPANSION_SCOUT",
+          "actual": "EXPANSION_SCOUT",
+          "detail": null
+        },
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "EXPANSION_SCOUT",
+          "actual": "EXPANSION_SCOUT",
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "EXPANSION_SCOUT",
+        "scope": "Highbury",
+        "policy": "EXPANSION_SCOUT",
+        "filters": {
+          "borough": [],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": null
+        },
+        "sql_text": "",
+        "answer_text": "# 1. Summary Recommendation\n\nPrioritize expansion into **Western Queens (Long Island City)** and **Central/South Brooklyn corridors influenced by Atlantic Avenue and Flatbush/Midwood rezonings**. These areas show strong mixed-use development momentum and infrastructure investment, aligning with Highbury\u2019s business, couples, and longer-stay segments. Avoid un-signaled or heavily community-opposed areas until clearer regulatory/tourism data emerges.\n\n---\n\n# 2. Ranked Neighborhood Recommendations\n\n1. **Long Island City (Queens) \u2013 Primary Target**\n   - Strong, ongoing **rezoning effort** to promote a mixed-use neighborhood with commercial, community facility, and residential space (Queens Daily Eagle; City Limits).\n   - Infrastructure catalysts: proposed **Brooklyn-Queens Connector (BQX) streetcar** and **Sunnyside Yards** overbuild vision (City Limits).\n   - Profile fits Highbury\u2019s core segments: business travelers (proximity to Manhattan), couples, and longer-stay tourists seeking new-build, mixed-use environments.\n\n2. **Atlantic Avenue Corridor, Brooklyn (Crown Heights / Bed-Stuy / East New York-facing segments) \u2013 Development-Driven Bet**\n   - **Atlantic Avenue Mixed-Use Plan (AAMUP)** aims to reinvigorate portions of the 120-foot-wide Atlantic Avenue thoroughfare and surrounding blocks, enabling new housing (including affordable) and economic opportunities (NYSDEC AAMUP signal).\n   - Industrial **M1-1 and M1-2 zones along Atlantic Avenue are being replaced with C6-3A districts**, permitting **higher-density mixed-use development with mandatory affordable housing** (GoodWork Studio).\n   - Emerging mixed-use stock and improved streetscape likely to attract both business and leisure travelers over the medium term.\n\n3. **Flatbush / Midwood (Brooklyn) \u2013 Medium-Term Growth Play**\n   - \u201cVery large portions of Flatbush and Midwood will be subject to rezoning,\u201d with many blocks between **Coney Island Avenue and Ocean Avenue being upzoned**, and much of the land between **Ocean Avenue and Nostrand** being rezoned (GoodWork Studio).\n   - Anticipated **higher-density, mixed-use** character will support longer-stay tourists and visiting friends/family segments as new housing and commercial nodes come online.\n\n4. **Sunset Park (Brooklyn) \u2013 Cautious, Community-Driven Entry**\n   - An **Equitable Neighborhood Development Action Plan** is in place, led by Fifth Avenue Committee, a community development corporation focused on economic, social, and racial justice (Sunset Park PDF).\n   - Signals a structured, community-centered approach to growth rather than speculative development; suitable for **mission-aligned, lower-profile** hospitality/extended-stay formats, but requires careful community engagement.\n\n5. **Brownsville / East New York Adjacent (around 763 Thomas S Boyland St / Livonia Ave, Brooklyn) \u2013 Watchlist**\n   - HPD application for **Urban Development Action Area** designation and special permits to modify distance between buildings and height/setback rules for a **proposed mixed-use development within a Large-Scale** project (CB #16 minutes).\n   - Indicates targeted, state-supported redevelopment, but tourism demand is not yet signaled; treat as a **long-horizon** option rather than immediate expansion.\n\n---\n\n# 3. External Signal Breakdown (Table)\n\n| Signal Source | Area / Topic | Extracted Key_Points Referenced | Expansion Relevance |\n|--------------|-------------|----------------------------------|---------------------|\n| Community Board #16 Minutes (June 26, 2018) | Brownsville / East New York, Brooklyn | Application by HPD for Urban Development Action Area designation at **763 Thomas S Boyland St** and **Livonia Ave/Chester St**; use of **Article 16**; special permit **Section 74-743(a)(2)** to allow buildings without standard distance, height, and setback regulations; tied to a **proposed mixed-use development within a Large-Scale** project. | Confirms **public-sector-backed mixed-use redevelopment** in a historically underinvested area. Good long-term signal, but limited immediate tourism/business-travel pull. |\n| Brooklyn \u2013 Atlantic Avenue Mixed-Use Plan (AAMUP) \u2013 NYSDEC | Atlantic Avenue corridor, Brooklyn | Proposed actions to **reinvigorate portions of the 120-foot-wide Atlantic Avenue thoroughfare and surrounding blocks**; goal to **mitigate the regional housing crisis** by enabling new housing (including affordable) and **facilitating economic opportunities**. | Strong indicator of **future mixed-use density and economic activity** along Atlantic Avenue; likely to improve streetscape, safety, and visitor appeal over time. |\n| Brooklyn Commercial Property Investment \u2013 GoodWork Studio | Flatbush, Midwood, Atlantic Avenue industrial zones | \u201cVery large portions of **Flatbush and Midwood** will be subject to rezoning,\u201d with many blocks between **Coney Island Ave and Ocean Ave** being upzoned; much land between **Ocean Ave and Nostrand** being rezoned; **industrial M1-1 and M1-2 along Atlantic Avenue replaced with C6-3A**, allowing **higher-density mixed-use development with mandatory affordable housing**. | Confirms **broad rezoning and upzoning** in central/south Brooklyn, creating new mixed-use corridors suitable for extended-stay and value-focused lodging. |\n| NYC Comprehensive Waterfront Plan | NYC waterfront (borough-agnostic) | Plan aims to fulfill public\u2019s claim to productive use and enjoyment of the waterfront; works within complex legal/regulatory parameters; notes that a **revised and enhanced WRP** would better articulate goals for differing waterfront sections. | Macro signal that **waterfront areas** (including parts of Brooklyn/Queens) will see structured, regulated development; supports long-term stability but is not neighborhood-specific. |\n| Queens Advocates \u2013 City Limits | Long Island City, Queens | DCP studying **upzoning parts of Long Island City between Sunnyside Yards and Queensbridge Houses** to promote a **mixed-use neighborhood** with commercial, community facility, and residential space; mentions **BQX streetcar** and **Sunnyside Yards** overbuild vision; notes community concerns about **gentrification and displacement**. | Strong signal of **intensifying development and infrastructure** in LIC, with some political/community sensitivity. Ideal for business/couples segments, but requires regulatory and community monitoring. |\n| Queens Daily Eagle \u2013 LIC Rezoning Effort | Long Island City, Queens | City launches **massive Long Island City rezoning effort**; follows contentious **Innovation QNS** approval; Councilmember Won emphasizes need to **change how rezonings are done** in the district. | Confirms **active, large-scale rezoning** in LIC and a more structured, negotiated approach to development approvals\u2014suggesting **predictable but scrutinized** growth. |\n| Sunset Park, Brooklyn \u2013 Fifth Avenue Committee PDF | Sunset Park, Brooklyn | Describes an **Equitable Neighborhood Development Action Plan**; Fifth Avenue Committee\u2019s mission is to advance **economic, social, and racial justice** through **community-centered affordable housing and development**; rooted in local, grassroots organizing since 1978. | Indicates **managed, equity-focused growth** rather than speculative boom; suitable for **low-impact, community-aligned** hospitality offerings. |\n| 2025 Comprehensive Plan for Brooklyn (Borough President) | Brooklyn (borough-wide) | Plan framework around **Health, Wellness + Justice; Housing Growth + Housing Choice; Jobs, Industry + Economic Prosperity; Public Space + Placemaking**; acknowledges growth alongside skyrocketing inequity. | Borough-level confirmation that **growth and housing expansion** are policy priorities, but with equity constraints\u2014implies continued rezoning and mixed-use development, especially along key corridors. |\n| Jacksonville Downtown Feasibility Study (PDF) | Jacksonville (non-NYC) | No NYC key_points. | Not used. |\n| City of Redding General Plan 2045 (PDF) | Redding (non-NYC) | No NYC key_points. | Not used. |\n\n---\n\n# 4. Recommended Property Types\n\nAligned to Highbury\u2019s segments and the above signals:\n\n1. **Long Island City (Queens)**\n   - **Primary:**  \n     - Upscale **aparthotel / extended-stay** units (studios and 1BRs with kitchens) for business travelers and longer-stay tourists.  \n   - **Secondary:**  \n     - Compact **hotel-style units** in mixed-use towers targeting couples/weekenders.\n\n2. **Atlantic Avenue Corridor (Brooklyn) \u2013 C6-3A & AAMUP Areas**\n   - **Primary:**  \n     - **Midscale extended-stay** units embedded in new mixed-use developments (residential over retail), with strong emphasis on value and longer stays.  \n   - **Secondary:**  \n     - Small-footprint **design-forward suites** for couples exploring \u201cemerging Brooklyn\u201d neighborhoods.\n\n3. **Flatbush / Midwood (Upzoned Areas)**\n   - **Primary:**  \n     - **Value-oriented, longer-stay apartments** (1\u20132BR) within new residential buildings, targeting visiting families and budget-conscious tourists.  \n   - **Secondary:**  \n     - Limited **corporate housing-style units** for business travelers tied to Brooklyn institutions and hospitals.\n\n4. **Sunset Park**\n   - **Primary:**  \n     - **Low-density, community-sensitive extended-stay** (e.g., a small cluster of units within mixed-income or community-oriented projects) aligned with equitable development goals.  \n   - **Avoid:**  \n     - Large, highly visible tourist-oriented properties that may conflict with local equity priorities.\n\n5. **Brownsville / East New York Adjacent (UDAP Area)**\n   - **Primary (Future):**  \n     - **Mission-aligned, affordable extended-stay** or workforce lodging integrated into HPD-backed mixed-use projects, if/when tourism or business travel demand materializes.\n\n---\n\n# 5. Risks & Constraints\n\n1. **Regulatory & Political Scrutiny**\n   - LIC rezoning and Innovation QNS history show **intense negotiation and public scrutiny** around new development (Queens Daily Eagle; City Limits). Hospitality uses may face heightened review or community pushback.\n   - Atlantic Avenue and Flatbush/Midwood rezonings (GoodWork Studio; AAMUP) are tied to **mandatory affordable housing** and equity goals; hospitality components must not be perceived as displacing housing.\n\n2. **Community Opposition & Gentrification Concerns**\n   - In LIC, community leaders link rezoning, BQX, and Sunnyside Yards to **gentrification and displacement** (City Limits).\n   - Sunset Park\u2019s Equitable Neighborhood Development Action Plan (Fifth Avenue Committee) signals **organized community oversight**; misaligned projects risk reputational and political damage.\n\n3. **Timing & Demand Uncertainty**\n   - Many signals (AAMUP, Flatbush/Midwood rezoning, Brownsville UDAP) are **planning and entitlement-stage**, not fully built out. Tourism and business demand may **lag** physical development by several years.\n\n4. **Zoning & Use Constraints**\n   - Conversion of industrial M1 zones to C6-3A (GoodWork Studio) opens mixed-use potential but may come with **specific use, bulk, and inclusionary housing requirements** that constrain hospitality footprints.\n   - HPD-led UDAP projects (CB #16) may prioritize **deep affordability and community facilities**, limiting or conditioning hospitality participation.\n\n5. **Waterfront & Environmental Regulations**\n   - The Comprehensive Waterfront Plan and WRP revisions (NYC Waterfront Plan) indicate **complex regulatory parameters** for waterfront parcels; any waterfront-adjacent plays in Brooklyn/Queens will face **additional review and resiliency requirements**.\n\n---\n\n# 6. Final Operator Takeaway\n\nShift incremental units from Manhattan into:\n\n- **Now / Near-Term:**  \n  - **Long Island City**: target mixed-use towers in rezoning areas near Sunnyside Yards/Queensbridge Houses for **extended-stay and business-focused units**.\n- **Next 3\u20137 Years:**  \n  - **Atlantic Avenue (C6-3A segments) + Flatbush/Midwood upzoned corridors**: secure positions in **new mixed-use and inclusionary projects** to serve value-oriented extended stays.\n- **Selective / Community-First:**  \n  - **Sunset Park and Brownsville UDAP zones**: only via **partnerships with mission-driven developers (e.g., Fifth Avenue Committee-type orgs, HPD projects)** and with low-visibility, longer-stay formats.\n\nThis mix diversifies Highbury into Queens and Brooklyn, aligns with rising development and infrastructure, and positions the portfolio in areas with **structured, if scrutinized, regulatory environments** rather than speculative hotspots.\n\n---\n\n# 7. Sources (collapsible)\n\n<details>\n<summary>Click to expand source list</summary>\n\n- Community Board #16 Minutes \u2013 June 26, 2018 (HPD Urban Development Action Area at 763 Thomas S Boyland St & Livonia Ave/Chester St; Section 74-743(a)(2) special permit; large-scale mixed-use development).\n- Brooklyn \u2013 Atlantic Avenue Mixed-Use Plan (AAMUP) \u2013 NYSDEC (reinvigorating 120-foot-wide Atlantic Avenue; new housing incl. affordable; economic opportunities).\n- Brooklyn Commercial Property Investment \u2013 GoodWork Studio (rezoning/upzoning in Flatbush and Midwood; Coney Island Ave\u2013Ocean Ave; Ocean Ave\u2013Nostrand; M1-1/M1-2 along Atlantic Ave to C6-3A with mandatory affordable housing).\n- NYC Comprehensive Waterfront Plan (citywide waterfront goals; WRP revisions; regulatory parameters).\n- Queens Advocates \u2013 City Limits (LIC rezoning study; BQX streetcar; Sunnyside Yards vision; mixed-use neighborhood; gentrification concerns).\n- Queens Daily Eagle \u2013 \u201cCity launches massive Long Island City rezoning effort\u201d (LIC rezoning; Innovation QNS context; Councilmember Won\u2019s approach).\n- Sunset Park, Brooklyn \u2013 Fifth Avenue Committee Equitable Neighborhood Development Action Plan (community-centered development; economic, social, racial justice mission).\n- 2025 Comprehensive Plan for Brooklyn \u2013 Office of Brooklyn Borough President (framework: housing growth, jobs, public space; growth with inequity).\n- Jacksonville Downtown Market Feasibility Study (non-NYC; not used).\n- City of Redding General Plan 2045 (non-NYC; not used).\n\n</details>",
+        "row_count": 0,
+        "rag_count": 0,
+        "latency": 133.4,
+        "abstained": false,
+        "manual_checks": [
+          "Recommendations should honor both constraints: NYC only, Manhattan excluded."
+        ],
+        "notes": "Constraint-following case for external-source planning."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-rag-negative-vs-positive-conflict",
+      "query": "Guests seem split on Brooklyn. What are the strongest complaints, not the praise?",
+      "category": "rag",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "rag",
+        "conflicting-sentiment"
+      ],
+      "assertions": [
+        {
+          "name": "filters_subset",
+          "passed": true,
+          "expected": {
+            "borough": [
+              "Brooklyn"
+            ],
+            "sentiment_label": "negative"
+          },
+          "actual": {
+            "borough": [
+              "Brooklyn"
+            ],
+            "neighbourhood": [],
+            "month": [],
+            "year": [],
+            "listing_id": null,
+            "is_highbury": false,
+            "sentiment_label": "negative"
+          },
+          "detail": null
+        },
+        {
+          "name": "min_rag_snippets",
+          "passed": true,
+          "expected": 1,
+          "actual": 10,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "SENTIMENT_REVIEWS",
+        "scope": "Market",
+        "policy": "RAG_MARKET",
+        "filters": {
+          "borough": [
+            "Brooklyn"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": false,
+          "sentiment_label": "negative"
+        },
+        "sql_text": "",
+        "answer_text": "Top review evidence from Brooklyn (APR 2022).",
+        "row_count": 0,
+        "rag_count": 10,
+        "latency": 0.75,
+        "abstained": false,
+        "manual_checks": [
+          "The answer should bias toward negative evidence and avoid mixing in positive snippets unless it labels them explicitly."
+        ],
+        "notes": "Tests conflict resolution when the user explicitly prioritizes the complaint side."
+      },
+      "error": null
+    },
+    {
+      "case_id": "adversarial-sql-compare-implicit-market",
+      "query": "Are our Upper West Side prices punching above the neighborhood around us?",
+      "category": "sql",
+      "passed": true,
+      "tags": [
+        "adversarial",
+        "sql",
+        "compare",
+        "implicit-market"
+      ],
+      "assertions": [
+        {
+          "name": "policy",
+          "passed": true,
+          "expected": "SQL_COMPARE",
+          "actual": "SQL_COMPARE",
+          "detail": null
+        },
+        {
+          "name": "require_sql",
+          "passed": true,
+          "expected": true,
+          "actual": true,
+          "detail": null
+        },
+        {
+          "name": "min_rows",
+          "passed": true,
+          "expected": 1,
+          "actual": 1,
+          "detail": null
+        }
+      ],
+      "result": {
+        "intent": "FACT_SQL_COMPARE",
+        "scope": "Hybrid",
+        "policy": "SQL_COMPARE",
+        "filters": {
+          "borough": [
+            "Manhattan"
+          ],
+          "neighbourhood": [],
+          "month": [],
+          "year": [],
+          "listing_id": null,
+          "is_highbury": false,
+          "neighbourhood_hint": [
+            "upper west"
+          ],
+          "sentiment_label": null
+        },
+        "sql_text": "SELECT \n    ROUND(AVG(h.price_in_usd), 2) AS highbury_avg_price,\n    ROUND(AVG(l.price_in_usd), 2) AS market_avg_price\nFROM \n    highbury_listings h\nJOIN \n    listings_cleaned l ON h.listings_id = l.listings_id\nWHERE \n    lower(h.neighbourhood_group) = 'manhattan' \n    AND lower(h.neighbourhood) LIKE '%upper west%'\n    AND lower(l.neighbourhood_group) = 'manhattan'\n    AND lower(l.neighbourhood) <> lower(h.neighbourhood);",
+        "answer_text": null,
+        "row_count": 1,
+        "rag_count": 0,
+        "latency": 3.5,
+        "abstained": false,
+        "manual_checks": [
+          "Check whether the system correctly interprets the neighborhood benchmark as a Highbury vs market comparison."
+        ],
+        "notes": "Tests implicit comparison language without explicit 'compare' wording."
+      },
+      "error": null
+    }
+  ]
+}
