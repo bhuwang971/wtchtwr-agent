@@ -957,6 +957,10 @@ def _hit_matches_sentiment(hit: Dict[str, Any], sentiment_label: str) -> bool:
     return False
 
 
+def _is_placeholder_listing_id(listing_id: Any) -> bool:
+    return str(listing_id or "").strip().lower().startswith("placeholder-")
+
+
 def _run_sentiment_probe(
     base_state: GraphState,
     listing_id: str,
@@ -983,17 +987,14 @@ def _run_sentiment_probe(
     return (ragged.get("rag_snippets") or [])[:probe_top_k]
 
 
-def _collect_sentiment_hits(
+def _fetch_listing_sentiment(
     base_state: GraphState,
-    row: Dict[str, Any],
+    listing_id: str,
     sentiment_label: str,
     *,
     min_reviews: int = _SENTIMENT_MIN_REVIEWS,
 ) -> List[Dict[str, Any]]:
-    """Gather review snippets with progressively wider sentiment filters."""
-    listing_id = row.get("listing_id")
-    if not listing_id:
-        return []
+    """Gather review snippets for one concrete listing."""
     hits: List[Dict[str, Any]] = []
     seen: set[str] = set()
     attempts = _sentiment_attempt_filters(sentiment_label)
@@ -1048,6 +1049,25 @@ def _collect_sentiment_hits(
             clone["id"] = f"{clone_id}::dup{len(hits)}"
             hits.append(clone)
     return hits
+
+
+def _collect_sentiment_hits(
+    base_state: GraphState,
+    row: Dict[str, Any],
+    sentiment_label: str,
+    *,
+    min_reviews: int = _SENTIMENT_MIN_REVIEWS,
+) -> List[Dict[str, Any]]:
+    """Gather review snippets with progressively wider sentiment filters."""
+    listing_id = row.get("listing_id")
+    if not listing_id or _is_placeholder_listing_id(listing_id):
+        return []
+    return _fetch_listing_sentiment(
+        base_state,
+        str(listing_id),
+        sentiment_label,
+        min_reviews=min_reviews,
+    )
 
 
 def _snippet_preview(text: Optional[str]) -> Optional[str]:

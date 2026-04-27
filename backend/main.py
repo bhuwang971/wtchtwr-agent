@@ -10,6 +10,7 @@ import csv
 import html
 import io
 import json
+import os
 import re
 import threading
 import logging
@@ -24,6 +25,8 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Set, Tuple
 from uuid import uuid4
+
+os.environ.setdefault("USER_AGENT", "wtchtwr-local-dev/1.0")
 
 import duckdb
 import numpy as np
@@ -77,6 +80,7 @@ if not logger.handlers:
 SLACK_PORT = 3000
 SLACK_THREAD: Optional[threading.Thread] = None
 SLACK_RUNNING = False
+SLACK_START_ATTEMPTED = False
 
 RAG_TABLE_NAME = "RAG Sources"
 RAG_TABLE_SOURCE = "rag"
@@ -1149,10 +1153,18 @@ def purge_expired_exports() -> None:
 
 def _start_slack_bot_thread() -> None:
     """Initialize and launch the Slack bot in a background thread."""
-    global SLACK_THREAD, SLACK_RUNNING
+    global SLACK_THREAD, SLACK_RUNNING, SLACK_START_ATTEMPTED
 
     if SLACK_THREAD and SLACK_THREAD.is_alive():
         SLACK_RUNNING = True
+        return
+    if SLACK_START_ATTEMPTED:
+        return
+    SLACK_START_ATTEMPTED = True
+
+    if not os.getenv("SLACK_BOT_TOKEN") or not os.getenv("SLACK_SIGNING_SECRET"):
+        SLACK_RUNNING = False
+        logger.info("[SlackBot] Disabled; set SLACK_BOT_TOKEN and SLACK_SIGNING_SECRET to enable.")
         return
 
     try:
@@ -1218,7 +1230,7 @@ def _warmup_agent_queries() -> None:
 
 def _run_warmup_tasks() -> None:
     """Execute all warmup tasks (graph build, vector, DB, sample queries)."""
-    logger.info("[Warmup] Priming agent caches…")
+    logger.info("[Warmup] Priming agent caches...")
     try:
         build_graph()
     except Exception as exc:
@@ -1228,7 +1240,8 @@ def _run_warmup_tasks() -> None:
     except Exception as exc:
         logger.warning("[Warmup] Vector warmup failed: %s", exc)
     _warmup_duckdb()
-    _warmup_agent_queries()
+    if os.getenv("WTCHTWR_RUN_SAMPLE_WARMUP", "").strip().lower() in {"1", "true", "yes"}:
+        _warmup_agent_queries()
     logger.info("[Warmup] Completed agent warmup sequence.")
 
 
@@ -1298,12 +1311,6 @@ def _health_snapshot() -> Dict[str, Any]:
         "checked_at": isoformat(utcnow()),
         "components": components,
     }
-
-
-@app.on_event("startup")
-async def _start_background_services() -> None:
-    """Ensure auxiliary services (Slackbot) are ready when the API boots."""
-    _start_slack_bot_thread()
 
 
 @app.get("/api/health/live")
